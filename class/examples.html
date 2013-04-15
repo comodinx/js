@@ -1,0 +1,773 @@
+<html>
+	<head>
+		<title>CX Class Examples</title>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		
+		<script type="text/javascript" >
+			/**
+			 * CX Class - Version 1.0
+			 * 
+			 * Description:
+			 * 	Allows creation of classes.
+			 * 
+			 * Inspired in
+			 * 	Dojo Toolkit 1.8 - http://dojotoolkit.org/
+			 * 	Prototype 1.7.1 - http://prototypejs.org/
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 * 
+			 * Maintained by
+			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
+			 */
+			!function(win) {
+			
+				var core_toString = Object.prototype.toString;
+
+				function extend(destination, source) {
+					for (var property in source) {
+						destination[property] = source[property];
+					}
+					return destination;
+				};
+				
+				var Class = (function() {
+					
+					function _forceNew(klass){
+						tempKlass = new Function;
+						tempKlass.prototype = klass.prototype;
+						var instanceTempKlass = new tempKlass;
+						tempKlass.prototype = null;
+						return instanceTempKlass;
+					}
+					
+					function _addMethods(target, name, fn) {
+						if(core_toString.call(name) == "[object String]") {
+							if((fn !== Object.prototype[name] || !(name in Object.prototype)) && name != 'constructor'){
+								if(core_toString.call(fn) == "[object Function]"){
+									fn.declareMethod = name;
+								}
+								target[name] = fn;
+							}
+						} else {
+							for(var prop in name){
+								_addMethods(target, prop, name[prop]);
+							}
+						}
+					};
+					
+					var defaultMethods = {
+						inherited: function inherited() {
+							var args = arguments[0]
+								, cache = this._inherited = this._inherited || {c: this.constructor};
+							
+							if(cache.c == Object) {
+								cache.c = this.constructor;
+							}
+							
+							// Handle method
+							if(args.callee.declareMethod) {
+								
+								var exists = false
+									, method = args.callee.declareMethod;
+								
+								cache.c = this.constructor;
+								do {
+									cache.c = cache.c._meta.superclass;
+									if (cache.c.prototype[method]) {
+										exists = true;
+									}
+								} while(cache.c._meta && !exists);
+								
+								var result = undefined;
+								if(exists) {
+									result = cache.c.prototype[method].apply(this, args);
+								}
+								return result;
+								
+							// Handle constructor
+							} else {
+								cache.c = cache.c._meta.superclass;
+								return cache.c.apply(this, args);
+							}
+						},
+						
+						toString: function toString() {
+							return ['Class<', this.declareClass, '>'].join('');
+						}
+					};
+					
+					var create = function (name, superclass, props) {
+						if(typeof superclass !== 'function') {
+							props = superclass;
+							superclass = Object;
+						}
+						
+						var proto = _forceNew(superclass), klass;
+						
+						if (!props.constructor) {
+							props.constructor = Function;
+						}
+						
+						klass = props.constructor;
+						
+						// Add default methods
+						extend(proto, defaultMethods);
+						
+						// Add default properties
+						extend(proto, {
+							declareClass: name,
+							constructor: klass
+						});
+						
+						// Add properties
+						_addMethods(proto, props);
+
+						// Add prototype and metadata
+						klass.prototype = proto;
+						klass._meta = {
+							superclass: superclass
+						};
+						
+						return klass;
+					};
+					
+					var addMethods = function(name, fn) {
+						_addMethods(defaultMethods, name, fn);
+					};
+					
+					var type = function(klass) {
+						if (klass.declareClass) {
+							return defaultMethods.toString.call(klass);
+						}
+						return core_toString.call(klass);
+					};
+					
+					return {
+						create: create,
+						addMethods: addMethods,
+						type: type
+					};
+				})();
+				
+				win.Class = Class;
+				
+			}(window);
+			
+			/**
+			 * CX Logger - Version 1.0
+			 * 
+			 * Description:
+			 * 	Allows messages register.
+			 * 
+			 * Dependecias:
+			 * 	cx-class >= 1.0
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 * 
+			 * Maintained by
+			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
+			 */
+			!function(win) {
+			
+				var Logger = win.Class.create('Logger', (function() { 
+				
+					var Logger = function(options) {
+						options = (options || {})
+						this._prefix = (options.prefix || 'Log');
+						this._separator = (options.separator || '');
+						this._level = (options.level || Logger.DEBUG);
+						this._logger = (options.type || Logger.CONSOLE);
+						this._showDate = (options.date || true);
+						this._formatDate = (options.formatDate || false);
+					}; 
+
+					//Logger type
+					Logger.CONSOLE = function(message) {
+						window.console.log(message);
+					};
+					
+					Logger.ALERT 	 = function(message) {
+						alert(message);
+					};
+
+					//Logger level
+					Logger.DEBUG 	= 0;
+					Logger.INFO 	= 1;
+					Logger.WARN 	= 2;
+					Logger.ERROR 	= 3;
+					Logger.FATAL 	= 4;
+					
+					var debug = function(message, error) { return this.log("DEBUG", message, error); };
+					var info  = function(message, error) { return this.log("INFO",  message, error); };
+					var warn  = function(message, error) { return this.log("WARN",  message, error); };
+					var error = function(message, error) { return this.log("ERROR", message, error); };
+					var fatal = function(message, error) { return this.log("FATAL", message, error); };
+					
+					var isDebugEnabled = function() { return this._level <= Logger.DEBUG; };
+					var isInfoEnabled = function() { return this._level <= Logger.INFO; };
+					var isWarnEnabled = function() { return this._level <= Logger.WARN; };
+					var isErrorEnabled = function() { return this._level <= Logger.ERROR; };
+					var isFatalEnabled = function() { return this._level <= Logger.FATAL; };
+					
+					function leftPad(str, size, padStr) {
+						if (typeof str === 'undefined') {
+							return;
+						}
+						if (typeof padStr === 'undefined' || padStr.length == 0) {
+							padStr = " ";
+						}
+						
+						str = str.toString();
+						var padLen = padStr.length;
+						var strLen = str.length;
+						var pads = size - strLen;
+						if (pads <= 0) {
+							return str; // returns original String when possible
+						}
+						
+						if (pads == padLen) {
+							return padStr.concat(str);
+							
+						} else if (pads < padLen) {
+							return padStr.substring(0, pads).concat(str);
+							
+						} else {
+							var padding = [];
+							var padChars = padStr.split();
+							for (var i = 0; i < pads; i++) {
+								padding.push(padChars[i % padLen]);
+							}
+							return padding.join('').concat(str);
+						}
+					}
+		
+					function resolveDate(log) {
+						var throwMessage = '';
+						if (log._showDate) {
+							throwMessage += ' ';
+							var date = new Date();
+							if (log._formatDate) {
+								win.Date.formatDate(date, log._formatDate);
+							} else {
+								throwMessage += [
+									date.getFullYear(), 
+									'-', 
+									leftPad(date.getMonth(), 2, '0'), 
+									'-', 
+									leftPad(date.getDate(), 2, '0'), 
+									' ', 
+									leftPad(date.getHours(), 2, '0'), 
+									':', 
+									leftPad(date.getMinutes(), 2, '0'), 
+									':', 
+									leftPad(date.getSeconds(), 2, '0'), 
+									'.', 
+									date.getMilliseconds()
+								].join('');
+							}
+							throwMessage += ' ';
+						}
+						return throwMessage;
+					}
+					
+					function resolveError(log, error) {
+						var throwMessage = '';
+						var throwError = (error ? (error.stack ? error.stack : error) : '');
+						if (throwError) {
+							throwMessage += log._separator;
+							throwMessage += '\n';
+							throwMessage += throwError;
+						}
+						return throwMessage;
+					}
+					
+					var log = function(stringLevel, message, error) {
+					 var level = Logger[stringLevel];
+					 if ( !level || this._level <= level ) {
+						var throwMessage = this._prefix;
+						throwMessage += this._separator;
+						throwMessage += resolveDate(this);
+						throwMessage += this._separator;
+						throwMessage += '[';
+						throwMessage += stringLevel;
+						throwMessage += '] ';
+						throwMessage += this._separator;
+						throwMessage += (message ? message : '');
+						throwMessage += resolveError(this, error);
+						this._logger(throwMessage, stringLevel);
+					 }
+					};
+					
+					return {
+						constructor: Logger,
+						debug: debug,
+						info: info,
+						warn: warn,
+						error: error,
+						fatal: fatal,
+						isDebugEnabled: isDebugEnabled,
+						isInfoEnabled: isInfoEnabled,
+						isWarnEnabled: isWarnEnabled,
+						isErrorEnabled: isErrorEnabled,
+						isFatalEnabled: isFatalEnabled,
+						log: log
+					};
+					
+				})());
+			
+				win.Logger = Logger;
+				
+			}(window);
+		
+			$(document).ready(function() {
+				
+				var LOGGER_SELECTOR_MESSAGE = 'div.well.well-small';
+				var LOGGER_BEFORE_MESSAGE = '<div class="well well-small fade">';
+				var LOGGER_AFTER_MESSAGE = '</div>';
+				var LOGGER_PREFIX_CLASS = 'log-';
+				
+				var $loggerContainer = $('.logger-container');
+				
+				var log = new Logger({
+					prefix: 'CX Class',
+					separator: ' - ',
+					type: function(message, level) {
+						var $message;
+						if (message.lastIndexOf('Example') > 0) {
+							$message = $([LOGGER_BEFORE_MESSAGE, message, LOGGER_AFTER_MESSAGE].join(''));
+							$loggerContainer.append($message);
+							
+						} else {
+							$message = $(['<h4><small>', message, '</small></h4>'].join(''));
+							$([LOGGER_SELECTOR_MESSAGE, ':last-child'].join(''), $loggerContainer).append($message);
+						}
+						$message.addClass([LOGGER_PREFIX_CLASS, level.toLowerCase()].join(''));
+						$message.addClass('in');
+					}
+				});
+				
+				// Examples
+
+				log.info('Example 1: Expected shown in console "Class&lt;A&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				new A(); // ==> Shown in console "Class<A> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 2: Expected shown in console "Class&lt;B&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						log.debug("Class&lt;B&gt; &lt;init&gt;");
+					}
+				});
+
+				new B(); // ==> Shown in console "Class<B> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 3: Expected shown in console "Class&lt;A&gt; &lt;init&gt;", "Class&lt;B&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						this.inherited(arguments);
+						log.debug("Class&lt;B&gt; &lt;init&gt;");
+					}
+				});
+
+				new B(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 4: Expected shown in console "Class&lt;B&gt; &lt;init&gt;", "Class&lt;A&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						log.debug("Class&lt;B&gt; &lt;init&gt;");
+						this.inherited(arguments);
+					}
+				});
+
+				new B(); // ==> Shown in console "Class<B> <init>", "Class<A> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 5: Expected shown in console "Class&lt;A&gt; &lt;init&gt;", "Class&lt;B&gt; &lt;init&gt;", "Class&lt;C&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						this.inherited(arguments);
+						log.debug("Class&lt;B&gt; &lt;init&gt;");
+					}
+				});
+
+				var C = Class.create("C", B, {
+					constructor: function C() {
+						this.inherited(arguments);
+						log.debug("Class&lt;C&gt; &lt;init&gt;");
+					}
+				});
+
+				new C(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>", "Class<C> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 6: Expected shown in console "Class&lt;B&gt; &lt;init&gt;", "Class&lt;C&gt; &lt;init&gt;"');
+
+				var A = Class.create("A", {
+					constructor: function A() {
+						log.debug("Class&lt;A&gt; &lt;init&gt;");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						log.debug("Class&lt;B&gt; &lt;init&gt;");
+					}
+				});
+
+				var C = Class.create("C", B, {
+					constructor: function() {
+						this.inherited(arguments);
+						log.debug("Class&lt;C&gt; &lt;init&gt;");
+					}
+				});
+
+				new C(); // ==> Shown in console "Class<B> <init>", "Class<C> <init>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 7: Expected shown in console "Class&lt;A&gt; greet!!!"');
+
+				var A = Class.create("A", {
+					constructor: function A() {},
+
+					greet: function() {
+						log.debug("Class&lt;A&gt; greet!!!");
+					}
+				});
+
+				var B = Class.create("B", A, {
+					constructor: function B() {
+						this.inherited(arguments);
+					}
+				});
+
+				var C = Class.create("C", B, {
+					constructor: function C() {
+						this.inherited(arguments);
+					},
+
+					greet: function() {
+						this.inherited(arguments);
+					}
+				});
+
+				var c = new C();
+
+				c.greet(); // ==> Shown in console "Class<A> greet!!!"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 8: Expected shown in console "#A"');
+
+				Class.addMethods("inspect", function() {
+					return ['#', this.declareClass].join('');
+				});
+				
+				var A = Class.create("A", {
+					constructor: function A() {}
+				});
+
+				var a = new A();
+
+				log.debug(a.inspect()); // ==> Shown in console "#A"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 9: Expected shown in console "#A", "Class&lt;A&gt;"');
+
+				Class.addMethods({
+					inspect: function() {
+						return ['#', this.declareClass].join('');
+					},
+					
+					toString: function() {
+						return ['Class&lt;', this.declareClass, '&gt;'].join('');
+					}
+				});
+				
+				var A = Class.create("A", {
+					constructor: function A() {}
+				});
+
+				var a = new A();
+
+				log.debug(a.inspect()); // ==> Shown in console "#A"
+				
+				log.debug(a.toString()); // ==> Shown in console "Class<A>"
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 10: Expected shown in console "Class&lt;A&gt;", "#A", "[object Array]"');
+
+				var A = Class.create("A", {
+					constructor: function A() {},
+					
+					toString: function() {
+						return ['#', this.declareClass].join('');
+					}
+				});
+
+				var a = new A();
+
+				log.debug(Class.type(a)); // ==> Shown in console "Class<A>"
+				
+				log.debug(a.toString()); // ==> Shown in console "#A"
+
+				log.debug(Class.type([])); // ==> Shown in console "[object Array]"
+			});
+		</script>
+		
+		<style type="text/css">	
+			/*!
+			 * Bootstrap v2.2.2
+			 *
+			 * Copyright 2012 Twitter, Inc
+			 * Licensed under the Apache License v2.0
+			 * http://www.apache.org/licenses/LICENSE-2.0
+			 *
+			 * Designed and built with all the love in the world @twitter by @mdo and @fat.
+			 */
+			 
+			html {
+				font-size: 100%;
+				-webkit-text-size-adjust: 100%;
+						-ms-text-size-adjust: 100%;
+			}
+
+			body {
+				margin: 0;
+				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				line-height: 20px;
+				color: #333333;
+				background-color: #ffffff;
+			}
+			
+			h1,
+			h4 {
+				margin: 10px 0;
+				font-family: inherit;
+				font-weight: bold;
+				line-height: 20px;
+				color: inherit;
+				text-rendering: optimizelegibility;
+			}
+
+			h1 {
+				line-height: 40px;
+				font-size: 38.5px;
+			}
+
+			h4 {
+				font-weight: normal;
+				line-height: 1;
+				color: #999999;
+				font-size: 14px;
+			}
+
+			.page-header {
+				padding-bottom: 9px;
+				margin: 20px 0 30px;
+				border-bottom: 1px solid #eeeeee;
+			}
+	
+			.container {
+				width: 940px;
+				margin-right: auto;
+				margin-left: auto;
+				*zoom: 1;
+			}
+
+			.container:before,
+			.container:after {
+				display: table;
+				line-height: 0;
+				content: "";
+			}
+
+			.container:after {
+				clear: both;
+			}
+			
+			.row-fluid {
+				width: 100%;
+				*zoom: 1;
+			}
+
+			.row-fluid:before,
+			.row-fluid:after {
+				display: table;
+				line-height: 0;
+				content: "";
+			}
+
+			.row-fluid:after {
+				clear: both;
+			}
+
+			.row-fluid [class*="span"] {
+				display: block;
+				float: left;
+				width: 100%;
+				min-height: 30px;
+				margin-left: 2.127659574468085%;
+				*margin-left: 2.074468085106383%;
+				-webkit-box-sizing: border-box;
+					 -moz-box-sizing: border-box;
+								box-sizing: border-box;
+			}
+
+			.row-fluid [class*="span"]:first-child {
+				margin-left: 0;
+			}
+
+			.row-fluid .span12 {
+				width: 100%;
+				*width: 99.94680851063829%;
+			}
+
+			.text-warning,
+			.log-warn {
+				color: #c09853;
+			}
+
+			.text-error,
+			.log-error,
+			.log-fatal {
+				color: #b94a48;
+			}
+
+			.text-info,
+			.log-info { /*comutil desa workspace control global ruben protocolo*/
+				color: #3a87ad;
+			}
+
+			.text-success,
+			.log-debug {
+				color: #468847;
+			}
+			
+			.well {
+				min-height: 20px;
+				padding: 19px;
+				margin-bottom: 20px;
+				background-color: #f5f5f5;
+				border: 1px solid #e3e3e3;
+				-webkit-border-radius: 4px;
+					 -moz-border-radius: 4px;
+								border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+					 -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+								box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+			}
+
+			.well-small {
+				padding: 9px;
+				-webkit-border-radius: 3px;
+					 -moz-border-radius: 3px;
+								border-radius: 3px;
+			}
+
+			.fade {
+				opacity: 0;
+				-webkit-transition: opacity 0.25s linear;
+					 -moz-transition: opacity 0.25s linear;
+						 -o-transition: opacity 0.25s linear;
+								transition: opacity 0.25s linear;
+			}
+
+			.fade.in {
+				opacity: 1;
+				-webkit-transition: opacity 0.25s linear;
+					 -moz-transition: opacity 0.25s linear;
+						 -o-transition: opacity 0.25s linear;
+								transition: opacity 0.25s linear;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div class="container">
+			<div class="row-fliud">
+			
+				<div class="page-header">
+					<h1>Examples</h1>
+				</div>
+			
+				<div class="logger-container span12">
+				</div>
+				
+			</div>
+		</div>
+		
+	</body>
+</html>
