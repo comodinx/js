@@ -1,4 +1,3 @@
-
 CX Class
 ==
 
@@ -7,29 +6,29 @@ Comodinx Javascript library
 Inspirado en [DOJO][Dojo] y [Prototype][Prototype].
 
 
-Índice
+ï¿½ndice
 ------
 
-* [Introducción][introduction].
-* [Características][features].
-* [¿Como se utiliza?][getting_started].
+* [Introducciï¿½n][introduction].
+* [Caracterï¿½sticas][features].
+* [ï¿½Como se utiliza?][getting_started].
 * [Licencia][license].
 
 
-Introducción
+Introducciï¿½n
 ------------
-CX Class consta únicamente de cx-class.js. 
+CX Class consta ï¿½nicamente de cx-class.js. 
 
-Permite la creación de clases basándose en el patrón "Herencia de prototipos".
+Permite la creaciï¿½n de clases basï¿½ndose en el patrï¿½n "Herencia de prototipos".
 
 	
-Características
+Caracterï¿½sticas
 ---------------
 * Herencia
-* Invocación de constructores o métodos de la súper clase mediante el método `inherited`.
+* Invocaciï¿½n de constructores o mï¿½todos de la sï¿½per clase mediante el mï¿½todo `inherited`.
 
 
-¿Como se utiliza?
+ï¿½Como se utiliza?
 -----------------
 
 #### Class.create(/*String*/name, /*Object*/properties);
@@ -64,7 +63,7 @@ Crea una clase de nombre `name` con las propiedades especificadas en `properties
 
 #### Class.addMethods(/*String | Object*/name, /*Function?*/fn);
 
-Agrega el método `name` a los métodos por defecto, que tendrán todas las clases creadas por `Class.create`.
+Agrega el mï¿½todo `name` a los mï¿½todos por defecto, que tendrï¿½n todas las clases creadas por `Class.create`.
 
 ```javascript
 	Class.addMethods("inspect", function() {
@@ -120,7 +119,7 @@ Devuelve el tipo de una clase.
 
 Licencia
 --------
-Copyright (c) 2013 - 2013 [Nicolás Molina - Comodinx and contributions]
+Copyright (c) 2013 - 2013 [Nicolï¿½s Molina - Comodinx and contributions]
 
 Licenciado bajo MIT License
 
@@ -128,7 +127,7 @@ Licenciado bajo MIT License
 [introduction]: #introduccin
 [features]: #caractersticas
 [getting_started]: #como-se-utiliza
-[examples]: #ejemplos
+[licence]: #licencia
 
 <!-- links to third party projects -->
 [Dojo]: http://dojotoolkit.org/
