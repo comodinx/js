@@ -226,6 +226,28 @@
 	console.log(a.inspect()); // ==> Shown in console "#A"
 	
 	console.log(a.toString()); // ==> Shown in console "Class<A>"
+
+	//#########################################################
+	//#########################################################
+	//#########################################################
+
+	console.log('Example 10: Expected shown in console "Class<A>", "#A", "[object Array]"');
+
+	var A = Class.create("A", {
+		constructor: function A() {},
+		
+		toString: function() {
+			return ['#', this.declareClass].join('');
+		}
+	});
+
+	var a = new A();
+
+	console.log(Class.type(a)); // ==> Shown in console "Class<A>"
+	
+	console.log(a.toString()); // ==> Shown in console "#A"
+
+	console.log(Class.type([])); // ==> Shown in console "[object Array]"
 	
  */
  
