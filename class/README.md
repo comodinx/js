@@ -6,32 +6,35 @@ Comodinx Javascript library
 Inspirado en [DOJO][Dojo] y [Prototype][Prototype].
 
 
-�ndice
+Índice
 ------
 
-* [Introducci�n][introduction].
-* [Caracter�sticas][features].
-* [�Como se utiliza?][getting_started].
+* [Introducción][introduction].
+* [Caracterásticas][features].
+* [¿Como se utiliza?][getting_started].
+	+ [Class.create][class_create].
+	+ [Class.addMethods][class_addmethods].
+	+ [Class.type][class_type].
 * [Licencia][license].
 
 
-Introducci�n
+Introducción
 ------------
-CX Class consta �nicamente de cx-class.js. 
+CX Class consta únicamente de cx-class.js. 
 
-Permite la creaci�n de clases bas�ndose en el patr�n "Herencia de prototipos".
+Permite la creación de clases basándose en el patrón "Herencia de prototipos".
 
 	
-Caracter�sticas
+Caracterásticas
 ---------------
 * Herencia
-* Invocaci�n de constructores o m�todos de la s�per clase mediante el m�todo `inherited`.
+* Invocación de constructores o métodos de la súper clase mediante el método `inherited`.
 
 
-�Como se utiliza?
+¿Como se utiliza?
 -----------------
 
-#### Class.create(/*String*/name, /*Object*/properties);
+#### Class.create(name, properties);
 
 Crea una clase de nombre `name` con las propiedades especificadas en `properties`.
 
@@ -43,7 +46,7 @@ Crea una clase de nombre `name` con las propiedades especificadas en `properties
 	});
 ```
 
-#### Class.create(/*String*/name, /*Function*/superclass, /*Object*/properties);
+#### Class.create(name, superclass, properties);
 
 Crea una clase de nombre `name` con las propiedades especificadas en `properties`, que extiende de la clase `superclass`.
 
@@ -61,9 +64,9 @@ Crea una clase de nombre `name` con las propiedades especificadas en `properties
 	});
 ```
 
-#### Class.addMethods(/*String | Object*/name, /*Function?*/fn);
+#### Class.addMethods(name, fn);
 
-Agrega el m�todo `name` a los m�todos por defecto, que tendr�n todas las clases creadas por `Class.create`.
+Agrega el método `name` a los métodos por defecto, que tendr�n todas las clases creadas por `Class.create`.
 
 ```javascript
 	Class.addMethods("inspect", function() {
@@ -100,7 +103,7 @@ Agrega el m�todo `name` a los m�todos por defecto, que tendr�n todas las c
 	a.toString();
 ```
 
-#### Class.type(/*Function*/klass);
+#### Class.type(klass);
 
 Devuelve el tipo de una clase.
 
@@ -119,15 +122,24 @@ Devuelve el tipo de una clase.
 
 Licencia
 --------
-Copyright (c) 2013 - 2013 [Nicol�s Molina - Comodinx and contributions]
+The MIT License (MIT)
 
-Licenciado bajo MIT License
+Copyright (c) 2013 - 2013 [Nicolás Molina - Comodinx and contributions]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <!-- deep links -->
 [introduction]: #introduccin
 [features]: #caractersticas
 [getting_started]: #como-se-utiliza
-[licence]: #licencia
+[class_create]: #classcreatename-properties
+[class_addmethods]: #classaddmethodsname-fn
+[class_type]: #classtypeklass
+[license]: #licencia
 
 <!-- links to third party projects -->
 [Dojo]: http://dojotoolkit.org/
