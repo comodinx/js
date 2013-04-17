@@ -6,7 +6,7 @@
 		
 		<script type="text/javascript" >
 			/**
-			 * CX Class - Version 1.0
+			 * CX Class - Version 1.1
 			 * 
 			 * Description:
 			 * 	Allows creation of classes.
@@ -24,8 +24,21 @@
 			 * Maintained by
 			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
 			 */
-			!function(win) {
-			
+			 
+			!function(window) {
+
+				var BUG_FOR_IN_SKIPS_SHADOWED = (function(){
+
+					// Test for bug where the for-in iterator skips object properties that exist in Object’s prototype (IE6 - ?).
+					// Extraido desde -> http://dojotoolkit.org/reference-guide/1.8/dojo/has.html#feature-names
+					for(var i in {toString: 1}){
+						return false;
+					}
+					return true;
+				})();
+				
+				var EXTRA_NAMES = (BUG_FOR_IN_SKIPS_SHADOWED ? "hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" ") : []);
+				
 				var core_toString = Object.prototype.toString;
 
 				function extend(destination, source) {
@@ -45,60 +58,75 @@
 						return instanceTempKlass;
 					}
 					
-					function _addMethods(target, name, fn) {
-						if(core_toString.call(name) == "[object String]") {
-							if((fn !== Object.prototype[name] || !(name in Object.prototype)) && name != 'constructor'){
-								if(core_toString.call(fn) == "[object Function]"){
-									fn.declareMethod = name;
-								}
-								target[name] = fn;
+					function _addMethod(target, name, fn) {
+						if((fn !== Object.prototype[name] || !(name in Object.prototype)) && name != 'constructor'){
+							if(core_toString.call(fn) == "[object Function]"){
+								fn.declareMethod = name;
 							}
-						} else {
-							for(var prop in name){
-								_addMethods(target, prop, name[prop]);
+							target[name] = fn;
+						}
+					}
+					
+					function _addMethods(target, name, fn) {
+						var source = name;
+						if(core_toString.call(name) == "[object String]") {
+							source = {}; source[name] = fn;
+						}
+						
+						for(name in source) {
+							_addMethod(target, name, source[name]);
+						}
+						
+						if(BUG_FOR_IN_SKIPS_SHADOWED) {
+							for(var extraNames = EXTRA_NAMES, i = extraNames.length; i;){
+								name = extraNames[--i];
+								_addMethod(target, name, source[name]);
 							}
 						}
 					};
 					
-					var defaultMethods = {
-						inherited: function inherited() {
-							var args = arguments[0]
-								, cache = this._inherited = this._inherited || {c: this.constructor};
-							
-							if(cache.c == Object) {
-								cache.c = this.constructor;
-							}
-							
-							// Handle method
-							if(args.callee.declareMethod) {
-								
-								var exists = false
-									, method = args.callee.declareMethod;
-								
-								cache.c = this.constructor;
-								do {
-									cache.c = cache.c._meta.superclass;
-									if (cache.c.prototype[method]) {
-										exists = true;
-									}
-								} while(cache.c._meta && !exists);
-								
-								var result = undefined;
-								if(exists) {
-									result = cache.c.prototype[method].apply(this, args);
-								}
-								return result;
-								
-							// Handle constructor
-							} else {
-								cache.c = cache.c._meta.superclass;
-								return cache.c.apply(this, args);
-							}
-						},
+					function inherited() {
+						var args = arguments[0]
+							, cache = this._inherited = this._inherited || {c: this.constructor};
 						
-						toString: function toString() {
-							return ['Class<', this.declareClass, '>'].join('');
+						if(cache.c == Object) {
+							cache.c = this.constructor;
 						}
+						
+						// Handle method
+						if(args.callee.declareMethod) {
+							
+							var exists = false
+								, method = args.callee.declareMethod;
+							
+							cache.c = this.constructor;
+							do {
+								cache.c = cache.c._meta.superclass;
+								if (cache.c.prototype[method]) {
+									exists = true;
+								}
+							} while(cache.c._meta && !exists);
+							
+							var result = undefined;
+							if(exists) {
+								result = cache.c.prototype[method].apply(this, args);
+							}
+							return result;
+							
+						// Handle constructor
+						} else {
+							cache.c = cache.c._meta.superclass;
+							return cache.c.apply(this, args);
+						}
+					};
+					
+					function toString() {
+						return ['Class<', this.declareClass, '>'].join('');
+					};
+					
+					var defaultMethods = {
+						inherited: inherited,
+						toString: toString
 					};
 					
 					var create = function (name, superclass, props) {
@@ -116,13 +144,11 @@
 						klass = props.constructor;
 						
 						// Add default methods
-						extend(proto, defaultMethods);
+						_addMethods(proto, defaultMethods);
 						
 						// Add default properties
-						extend(proto, {
-							declareClass: name,
-							constructor: klass
-						});
+						proto.declareClass = name;
+						proto.constructor = klass;
 						
 						// Add properties
 						_addMethods(proto, props);
@@ -142,7 +168,7 @@
 					
 					var type = function(klass) {
 						if (klass.declareClass) {
-							return defaultMethods.toString.call(klass);
+							return toString.call(klass);
 						}
 						return core_toString.call(klass);
 					};
@@ -154,9 +180,10 @@
 					};
 				})();
 				
-				win.Class = Class;
+				window.Class = Class;
 				
 			}(window);
+
 			
 			/**
 			 * CX Logger - Version 1.0
@@ -176,42 +203,53 @@
 			 * Maintained by
 			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
 			 */
-			!function(win) {
-			
-				var Logger = win.Class.create('Logger', (function() { 
+			!function(window) {
+	
+				function isUndefined(o) {
+					return typeof o === 'undefined';
+				}
+				
+				var Logger = window.Class.create('Logger', (function() { 
 				
 					var Logger = function(options) {
 						options = (options || {})
-						this._prefix = (options.prefix || 'Log');
-						this._separator = (options.separator || '');
+					
+						if (typeof options === 'string') {
+							options = {name: options};
+						}
+						
+						this._name = (options.name || 'Log');
+						this._separator = (options.separator || ' - ');
 						this._level = (options.level || Logger.DEBUG);
-						this._logger = (options.type || Logger.CONSOLE);
-						this._showDate = (options.date || true);
-						this._formatDate = (options.formatDate || false);
+						this._handler = (options.handler || Logger.CONSOLE);
+						this._showDate = (!isUndefined(options.date) ? options.date : true);
 					}; 
 
-					//Logger type
+					// Logger type
 					Logger.CONSOLE = function(message) {
 						window.console.log(message);
 					};
 					
-					Logger.ALERT 	 = function(message) {
+					Logger.ALERT = function(message) {
 						alert(message);
 					};
 
-					//Logger level
+					// Logger level
+					Logger.TRACE 	= -1;
 					Logger.DEBUG 	= 0;
 					Logger.INFO 	= 1;
 					Logger.WARN 	= 2;
 					Logger.ERROR 	= 3;
 					Logger.FATAL 	= 4;
 					
-					var debug = function(message, error) { return this.log("DEBUG", message, error); };
-					var info  = function(message, error) { return this.log("INFO",  message, error); };
-					var warn  = function(message, error) { return this.log("WARN",  message, error); };
-					var error = function(message, error) { return this.log("ERROR", message, error); };
-					var fatal = function(message, error) { return this.log("FATAL", message, error); };
+					var trace = function(message, error) { return _log(this, "TRACE", message, error); };
+					var debug = function(message, error) { return _log(this, "DEBUG", message, error); };
+					var info  = function(message, error) { return _log(this, "INFO",  message, error); };
+					var warn  = function(message, error) { return _log(this, "WARN",  message, error); };
+					var error = function(message, error) { return _log(this, "ERROR", message, error); };
+					var fatal = function(message, error) { return _log(this, "FATAL", message, error); };
 					
+					var isTraceEnabled = function() { return this._level <= Logger.TRACE; };
 					var isDebugEnabled = function() { return this._level <= Logger.DEBUG; };
 					var isInfoEnabled = function() { return this._level <= Logger.INFO; };
 					var isWarnEnabled = function() { return this._level <= Logger.WARN; };
@@ -219,10 +257,10 @@
 					var isFatalEnabled = function() { return this._level <= Logger.FATAL; };
 					
 					function leftPad(str, size, padStr) {
-						if (typeof str === 'undefined') {
+						if (isUndefined(str)) {
 							return;
 						}
-						if (typeof padStr === 'undefined' || padStr.length == 0) {
+						if (isUndefined(padStr) || padStr.length == 0) {
 							padStr = " ";
 						}
 						
@@ -249,82 +287,84 @@
 							return padding.join('').concat(str);
 						}
 					}
-		
-					function resolveDate(log) {
-						var throwMessage = '';
+
+					function _resolveDate(log) {
+						var messageBuilder = [];
 						if (log._showDate) {
-							throwMessage += ' ';
 							var date = new Date();
-							if (log._formatDate) {
-								win.Date.formatDate(date, log._formatDate);
+							messageBuilder.push(date.getFullYear())
+							messageBuilder.push('-');
+							messageBuilder.push(leftPad(date.getMonth(), 2, '0'));
+							messageBuilder.push('-');
+							messageBuilder.push(leftPad(date.getDate(), 2, '0'));
+							messageBuilder.push(' ');
+							messageBuilder.push(leftPad(date.getHours(), 2, '0'));
+							messageBuilder.push(':');
+							messageBuilder.push(leftPad(date.getMinutes(), 2, '0'));
+							messageBuilder.push(':');
+							messageBuilder.push(leftPad(date.getSeconds(), 2, '0'));
+							messageBuilder.push(',');
+							messageBuilder.push(date.getMilliseconds());
+							messageBuilder.push(' ');
+						}
+						return messageBuilder.join('');
+					}
+					
+					function _resolveError(log, error) {
+						var messageBuilder = [];
+						var throwError;
+						if (error) {
+							if (error.stack) {
+								throwError = error.stack;
+							} else if (error.message) {
+								throwError = error.message;
 							} else {
-								throwMessage += [
-									date.getFullYear(), 
-									'-', 
-									leftPad(date.getMonth(), 2, '0'), 
-									'-', 
-									leftPad(date.getDate(), 2, '0'), 
-									' ', 
-									leftPad(date.getHours(), 2, '0'), 
-									':', 
-									leftPad(date.getMinutes(), 2, '0'), 
-									':', 
-									leftPad(date.getSeconds(), 2, '0'), 
-									'.', 
-									date.getMilliseconds()
-								].join('');
+								throwError = error.toString();
 							}
-							throwMessage += ' ';
 						}
-						return throwMessage;
-					}
-					
-					function resolveError(log, error) {
-						var throwMessage = '';
-						var throwError = (error ? (error.stack ? error.stack : error) : '');
 						if (throwError) {
-							throwMessage += log._separator;
-							throwMessage += '\n';
-							throwMessage += throwError;
+							messageBuilder.push(log._separator);
+							messageBuilder.push('\n');
+							messageBuilder.push(throwError);
 						}
-						return throwMessage;
+						return messageBuilder.join('');
 					}
 					
-					var log = function(stringLevel, message, error) {
+					function _log(log, stringLevel, message, error) {
 					 var level = Logger[stringLevel];
-					 if ( !level || this._level <= level ) {
-						var throwMessage = this._prefix;
-						throwMessage += this._separator;
-						throwMessage += resolveDate(this);
-						throwMessage += this._separator;
-						throwMessage += '[';
-						throwMessage += stringLevel;
-						throwMessage += '] ';
-						throwMessage += this._separator;
-						throwMessage += (message ? message : '');
-						throwMessage += resolveError(this, error);
-						this._logger(throwMessage, stringLevel);
+					 if (!isUndefined(level) && log._level <= level ) {
+						var messageBuilder = [];
+						messageBuilder.push(_resolveDate(log));
+						messageBuilder.push('[');
+						messageBuilder.push(stringLevel);
+						messageBuilder.push('] ');
+						messageBuilder.push(log._name);
+						messageBuilder.push(log._separator);
+						messageBuilder.push((message || ''));
+						messageBuilder.push(_resolveError(log, error));
+						log._handler(messageBuilder.join(''), stringLevel);
 					 }
 					};
 					
 					return {
 						constructor: Logger,
+						trace: trace,
 						debug: debug,
 						info: info,
 						warn: warn,
 						error: error,
 						fatal: fatal,
+						isTraceEnabled: isTraceEnabled,
 						isDebugEnabled: isDebugEnabled,
 						isInfoEnabled: isInfoEnabled,
 						isWarnEnabled: isWarnEnabled,
 						isErrorEnabled: isErrorEnabled,
-						isFatalEnabled: isFatalEnabled,
-						log: log
+						isFatalEnabled: isFatalEnabled
 					};
 					
 				})());
-			
-				win.Logger = Logger;
+
+				window.Logger = Logger;
 				
 			}(window);
 		
@@ -338,9 +378,8 @@
 				var $loggerContainer = $('.logger-container');
 				
 				var log = new Logger({
-					prefix: 'CX Class',
-					separator: ' - ',
-					type: function(message, level) {
+					name: 'CX Class',
+					handler: function(message, level) {
 						var $message;
 						if (message.lastIndexOf('Example') > 0) {
 							$message = $([LOGGER_BEFORE_MESSAGE, message, LOGGER_AFTER_MESSAGE].join(''));
@@ -356,78 +395,93 @@
 				});
 				
 				// Examples
-
 				log.info('Example 1: Expected shown in console "Class&lt;A&gt; &lt;init&gt;"');
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				new A(); // ==> Shown in console "Class<A> <init>"
+					new A(); // ==> Shown in console "Class<A> <init>"
+				} catch(e) {
+					log.error('Error in example 1.', e);
+				}
 
 				//#########################################################
 				//#########################################################
 				//#########################################################
 
 				log.info('Example 2: Expected shown in console "Class&lt;B&gt; &lt;init&gt;"');
+				
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							log.debug("Class&lt;B&gt; &lt;init&gt;");
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						log.debug("Class&lt;B&gt; &lt;init&gt;");
-					}
-				});
-
-				new B(); // ==> Shown in console "Class<B> <init>"
+					new B(); // ==> Shown in console "Class<B> <init>"
+				} catch(e) {
+					log.error('Error in example 2.', e);
+				}
 
 				//#########################################################
 				//#########################################################
 				//#########################################################
 
 				log.info('Example 3: Expected shown in console "Class&lt;A&gt; &lt;init&gt;", "Class&lt;B&gt; &lt;init&gt;"');
+				
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							this.inherited(arguments);
+							log.debug("Class&lt;B&gt; &lt;init&gt;");
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						this.inherited(arguments);
-						log.debug("Class&lt;B&gt; &lt;init&gt;");
-					}
-				});
-
-				new B(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>"
+					new B(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>"
+				} catch(e) {
+					log.error('Error in example 3.', e);
+				}
 
 				//#########################################################
 				//#########################################################
 				//#########################################################
 
 				log.info('Example 4: Expected shown in console "Class&lt;B&gt; &lt;init&gt;", "Class&lt;A&gt; &lt;init&gt;"');
+				
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							log.debug("Class&lt;B&gt; &lt;init&gt;");
+							this.inherited(arguments);
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						log.debug("Class&lt;B&gt; &lt;init&gt;");
-						this.inherited(arguments);
-					}
-				});
-
-				new B(); // ==> Shown in console "Class<B> <init>", "Class<A> <init>"
+					new B(); // ==> Shown in console "Class<B> <init>", "Class<A> <init>"
+				} catch(e) {
+					log.error('Error in example 4.', e);
+				}
 
 				//#########################################################
 				//#########################################################
@@ -435,27 +489,31 @@
 
 				log.info('Example 5: Expected shown in console "Class&lt;A&gt; &lt;init&gt;", "Class&lt;B&gt; &lt;init&gt;", "Class&lt;C&gt; &lt;init&gt;"');
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						this.inherited(arguments);
-						log.debug("Class&lt;B&gt; &lt;init&gt;");
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							this.inherited(arguments);
+							log.debug("Class&lt;B&gt; &lt;init&gt;");
+						}
+					});
 
-				var C = Class.create("C", B, {
-					constructor: function C() {
-						this.inherited(arguments);
-						log.debug("Class&lt;C&gt; &lt;init&gt;");
-					}
-				});
+					var C = Class.create("C", B, {
+						constructor: function C() {
+							this.inherited(arguments);
+							log.debug("Class&lt;C&gt; &lt;init&gt;");
+						}
+					});
 
-				new C(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>", "Class<C> <init>"
+					new C(); // ==> Shown in console "Class<A> <init>", "Class<B> <init>", "Class<C> <init>"
+				} catch(e) {
+					log.error('Error in example 5.', e);
+				}
 
 				//#########################################################
 				//#########################################################
@@ -463,26 +521,30 @@
 
 				log.info('Example 6: Expected shown in console "Class&lt;B&gt; &lt;init&gt;", "Class&lt;C&gt; &lt;init&gt;"');
 
-				var A = Class.create("A", {
-					constructor: function A() {
-						log.debug("Class&lt;A&gt; &lt;init&gt;");
-					}
-				});
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {
+							log.debug("Class&lt;A&gt; &lt;init&gt;");
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						log.debug("Class&lt;B&gt; &lt;init&gt;");
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							log.debug("Class&lt;B&gt; &lt;init&gt;");
+						}
+					});
 
-				var C = Class.create("C", B, {
-					constructor: function() {
-						this.inherited(arguments);
-						log.debug("Class&lt;C&gt; &lt;init&gt;");
-					}
-				});
+					var C = Class.create("C", B, {
+						constructor: function() {
+							this.inherited(arguments);
+							log.debug("Class&lt;C&gt; &lt;init&gt;");
+						}
+					});
 
-				new C(); // ==> Shown in console "Class<B> <init>", "Class<C> <init>"
+					new C(); // ==> Shown in console "Class<B> <init>", "Class<C> <init>"
+				} catch(e) {
+					log.error('Error in example 6.', e);
+				}
 
 				//#########################################################
 				//#########################################################
@@ -490,33 +552,37 @@
 
 				log.info('Example 7: Expected shown in console "Class&lt;A&gt; greet!!!"');
 
-				var A = Class.create("A", {
-					constructor: function A() {},
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {},
 
-					greet: function() {
-						log.debug("Class&lt;A&gt; greet!!!");
-					}
-				});
+						greet: function() {
+							log.debug("Class&lt;A&gt; greet!!!");
+						}
+					});
 
-				var B = Class.create("B", A, {
-					constructor: function B() {
-						this.inherited(arguments);
-					}
-				});
+					var B = Class.create("B", A, {
+						constructor: function B() {
+							this.inherited(arguments);
+						}
+					});
 
-				var C = Class.create("C", B, {
-					constructor: function C() {
-						this.inherited(arguments);
-					},
+					var C = Class.create("C", B, {
+						constructor: function C() {
+							this.inherited(arguments);
+						},
 
-					greet: function() {
-						this.inherited(arguments);
-					}
-				});
+						greet: function() {
+							this.inherited(arguments);
+						}
+					});
 
-				var c = new C();
+					var c = new C();
 
-				c.greet(); // ==> Shown in console "Class<A> greet!!!"
+					c.greet(); // ==> Shown in console "Class<A> greet!!!"
+				} catch(e) {
+					log.error('Error in example 7.', e);
+				}
 
 				//#########################################################
 				//#########################################################
@@ -524,43 +590,54 @@
 
 				log.info('Example 8: Expected shown in console "#A"');
 
-				Class.addMethods("inspect", function() {
-					return ['#', this.declareClass].join('');
-				});
-				
-				var A = Class.create("A", {
-					constructor: function A() {}
-				});
-
-				var a = new A();
-
-				log.debug(a.inspect()); // ==> Shown in console "#A"
-
-				//#########################################################
-				//#########################################################
-				//#########################################################
-
-				log.info('Example 9: Expected shown in console "#A", "Class&lt;A&gt;"');
-
-				Class.addMethods({
-					inspect: function() {
+				try {
+					Class.addMethods("inspect", function() {
 						return ['#', this.declareClass].join('');
-					},
+					});
 					
-					toString: function() {
-						return ['Class&lt;', this.declareClass, '&gt;'].join('');
-					}
-				});
-				
-				var A = Class.create("A", {
-					constructor: function A() {}
-				});
+					var A = Class.create("A", {
+						constructor: function A() {}
+					});
 
-				var a = new A();
+					var a = new A();
 
-				log.debug(a.inspect()); // ==> Shown in console "#A"
-				
-				log.debug(a.toString()); // ==> Shown in console "Class<A>"
+					log.debug(a.inspect()); // ==> Shown in console "#A"
+				} catch(e) {
+					log.error('Error in example 8.', e);
+				}
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				log.info('Example 9: Expected shown in console "#A" and a unique hash code');
+
+				try {
+					Class.addMethods({
+						inspect: function() {
+							return ['#', this.declareClass].join('');
+						},
+						
+						hashCode: function() {
+							if(!this._hashCode) {
+								this._hashCode = (Math.floor(Math.random() * 11) + 1) + new Date().getTime();
+							}
+							return this._hashCode.toString();
+						}
+					});
+					
+					var A = Class.create("A", {
+						constructor: function A() {}
+					});
+
+					var a = new A();
+
+					log.debug(a.inspect()); // ==> Shown in console "#A"
+					
+					log.debug(a.hashCode()); // ==> Shown in console a unique hash code
+				} catch(e) {
+					log.error('Error in example 9.', e);
+				}
 
 				//#########################################################
 				//#########################################################
@@ -568,21 +645,25 @@
 
 				log.info('Example 10: Expected shown in console "Class&lt;A&gt;", "#A", "[object Array]"');
 
-				var A = Class.create("A", {
-					constructor: function A() {},
+				try {
+					var A = Class.create("A", {
+						constructor: function A() {},
+						
+						toString: function() {
+							return ['#', this.declareClass].join('');
+						}
+					});
+
+					var a = new A();
+
+					log.debug(Class.type(a).replace('<', '&lt;').replace('>', '&gt;')); // ==> Shown in console "Class<A>"
 					
-					toString: function() {
-						return ['#', this.declareClass].join('');
-					}
-				});
+					log.debug(a.toString()); // ==> Shown in console "#A"
 
-				var a = new A();
-
-				log.debug(Class.type(a)); // ==> Shown in console "Class<A>"
-				
-				log.debug(a.toString()); // ==> Shown in console "#A"
-
-				log.debug(Class.type([])); // ==> Shown in console "[object Array]"
+					log.debug(Class.type([])); // ==> Shown in console "[object Array]"
+				} catch(e) {
+					log.error('Error in example 10.', e);
+				}
 			});
 		</script>
 		

@@ -66,7 +66,7 @@ Crea una clase de nombre `name` con las propiedades especificadas en `properties
 
 #### Class.addMethods(name, fn);
 
-Agrega el método `name` a los métodos por defecto, que tendr�n todas las clases creadas por `Class.create`.
+Agrega el método `name` a los métodos por defecto, que tendrán todas las clases creadas por `Class.create`.
 
 ```javascript
 	Class.addMethods("inspect", function() {
