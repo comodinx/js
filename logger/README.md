@@ -38,7 +38,7 @@ Características
 
 Crea una instancia de Logger.
 
-`options` puede ser de tipo `string` indicando el nombre del logger o un objeto donde se especifique la [opciones deseadas][docs_options].
+`options` puede ser de tipo `string` indicando el nombre del logger o un objeto donde se especifique las [opciones deseadas][docs_options].
 
 ```javascript
 	var log1 = new Logger('MyApp');
@@ -196,7 +196,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [features]: #caractersticas
 [getting_started]: #como-se-utiliza
 [new_logger]: #new-loggeroptions
-[log_methods]: #loggermethodmessage-error
+[log_methods]: #loggermethodmessage--error
 [is_methods]: #loggerislevelenabled
 [new_handler]: #nuevo-controlador
 [docs]: #docs
