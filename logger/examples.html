@@ -1,0 +1,628 @@
+<html>
+	<head>
+		<title>CX Logger Examples</title>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		
+		<script type="text/javascript" >
+			/**
+			 * CX Class - Version 1.1
+			 * 
+			 * Description:
+			 * 	Allows creation of classes.
+			 * 
+			 * Inspired in
+			 * 	Dojo Toolkit 1.8 - http://dojotoolkit.org/
+			 * 	Prototype 1.7.1 - http://prototypejs.org/
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 * 
+			 * Maintained by
+			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
+			 */
+			 
+			!function(window) {
+
+				var BUG_FOR_IN_SKIPS_SHADOWED = (function(){
+
+					// Test for bug where the for-in iterator skips object properties that exist in Object’s prototype (IE6 - ?).
+					// Extraido desde -> http://dojotoolkit.org/reference-guide/1.8/dojo/has.html#feature-names
+					for(var i in {toString: 1}){
+						return false;
+					}
+					return true;
+				})();
+				
+				var EXTRA_NAMES = (BUG_FOR_IN_SKIPS_SHADOWED ? "hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" ") : []);
+				
+				var core_toString = Object.prototype.toString;
+
+				function extend(destination, source) {
+					for (var property in source) {
+						destination[property] = source[property];
+					}
+					return destination;
+				};
+				
+				var Class = (function() {
+					
+					function _forceNew(klass){
+						tempKlass = new Function;
+						tempKlass.prototype = klass.prototype;
+						var instanceTempKlass = new tempKlass;
+						tempKlass.prototype = null;
+						return instanceTempKlass;
+					}
+					
+					function _addMethod(target, name, fn) {
+						if((fn !== Object.prototype[name] || !(name in Object.prototype)) && name != 'constructor'){
+							if(core_toString.call(fn) == "[object Function]"){
+								fn.declareMethod = name;
+							}
+							target[name] = fn;
+						}
+					}
+					
+					function _addMethods(target, name, fn) {
+						var source = name;
+						if(core_toString.call(name) == "[object String]") {
+							source = {}; source[name] = fn;
+						}
+						
+						for(name in source) {
+							_addMethod(target, name, source[name]);
+						}
+						
+						if(BUG_FOR_IN_SKIPS_SHADOWED) {
+							for(var extraNames = EXTRA_NAMES, i = extraNames.length; i;){
+								name = extraNames[--i];
+								_addMethod(target, name, source[name]);
+							}
+						}
+					};
+					
+					function inherited() {
+						var args = arguments[0]
+							, cache = this._inherited = this._inherited || {c: this.constructor};
+						
+						if(cache.c == Object) {
+							cache.c = this.constructor;
+						}
+						
+						// Handle method
+						if(args.callee.declareMethod) {
+							
+							var exists = false
+								, method = args.callee.declareMethod;
+							
+							cache.c = this.constructor;
+							do {
+								cache.c = cache.c._meta.superclass;
+								if (cache.c.prototype[method]) {
+									exists = true;
+								}
+							} while(cache.c._meta && !exists);
+							
+							var result = undefined;
+							if(exists) {
+								result = cache.c.prototype[method].apply(this, args);
+							}
+							return result;
+							
+						// Handle constructor
+						} else {
+							cache.c = cache.c._meta.superclass;
+							return cache.c.apply(this, args);
+						}
+					};
+					
+					function toString() {
+						return ['Class<', this.declareClass, '>'].join('');
+					};
+					
+					var defaultMethods = {
+						inherited: inherited,
+						toString: toString
+					};
+					
+					var create = function (name, superclass, props) {
+						if(typeof superclass !== 'function') {
+							props = superclass;
+							superclass = Object;
+						}
+						
+						var proto = _forceNew(superclass), klass;
+						
+						if (!props.constructor) {
+							props.constructor = Function;
+						}
+						
+						klass = props.constructor;
+						
+						// Add default methods
+						_addMethods(proto, defaultMethods);
+						
+						// Add default properties
+						proto.declareClass = name;
+						proto.constructor = klass;
+						
+						// Add properties
+						_addMethods(proto, props);
+
+						// Add prototype and metadata
+						klass.prototype = proto;
+						klass._meta = {
+							superclass: superclass
+						};
+						
+						return klass;
+					};
+					
+					var addMethods = function(name, fn) {
+						_addMethods(defaultMethods, name, fn);
+					};
+					
+					var type = function(klass) {
+						if (klass.declareClass) {
+							return toString.call(klass);
+						}
+						return core_toString.call(klass);
+					};
+					
+					return {
+						create: create,
+						addMethods: addMethods,
+						type: type
+					};
+				})();
+				
+				window.Class = Class;
+				
+			}(window);
+			
+			/**
+			 * CX Logger - Version 1.0
+			 * 
+			 * Description:
+			 * 	Allows messages register.
+			 * 
+			 * Dependecias:
+			 * 	cx-class >= 1.0
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 * 
+			 * Maintained by
+			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
+			 */
+			!function(window) {
+	
+				function isUndefined(o) {
+					return typeof o === 'undefined';
+				}
+				
+				var Logger = window.Class.create('Logger', (function() { 
+				
+					var Logger = function(options) {
+						options = (options || {})
+					
+						if (typeof options === 'string') {
+							options = {name: options};
+						}
+						
+						this._name = (options.name || 'Log');
+						this._separator = (options.separator || ' - ');
+						this._level = (options.level || Logger.DEBUG);
+						this._handler = (options.handler || Logger.CONSOLE);
+						this._showDate = (!isUndefined(options.date) ? options.date : true);
+					}; 
+
+					// Logger type
+					Logger.CONSOLE = function(message) {
+						window.console.log(message);
+					};
+					
+					Logger.ALERT = function(message) {
+						alert(message);
+					};
+
+					// Logger level
+					Logger.TRACE 	= -1;
+					Logger.DEBUG 	= 0;
+					Logger.INFO 	= 1;
+					Logger.WARN 	= 2;
+					Logger.ERROR 	= 3;
+					Logger.FATAL 	= 4;
+					
+					var trace = function(message, error) { return _log(this, "TRACE", message, error); };
+					var debug = function(message, error) { return _log(this, "DEBUG", message, error); };
+					var info  = function(message, error) { return _log(this, "INFO",  message, error); };
+					var warn  = function(message, error) { return _log(this, "WARN",  message, error); };
+					var error = function(message, error) { return _log(this, "ERROR", message, error); };
+					var fatal = function(message, error) { return _log(this, "FATAL", message, error); };
+					
+					var isTraceEnabled = function() { return this._level <= Logger.TRACE; };
+					var isDebugEnabled = function() { return this._level <= Logger.DEBUG; };
+					var isInfoEnabled = function() { return this._level <= Logger.INFO; };
+					var isWarnEnabled = function() { return this._level <= Logger.WARN; };
+					var isErrorEnabled = function() { return this._level <= Logger.ERROR; };
+					var isFatalEnabled = function() { return this._level <= Logger.FATAL; };
+					
+					function leftPad(str, size, padStr) {
+						if (isUndefined(str)) {
+							return;
+						}
+						if (isUndefined(padStr) || padStr.length == 0) {
+							padStr = " ";
+						}
+						
+						str = str.toString();
+						var padLen = padStr.length;
+						var strLen = str.length;
+						var pads = size - strLen;
+						if (pads <= 0) {
+							return str; // returns original String when possible
+						}
+						
+						if (pads == padLen) {
+							return padStr.concat(str);
+							
+						} else if (pads < padLen) {
+							return padStr.substring(0, pads).concat(str);
+							
+						} else {
+							var padding = [];
+							var padChars = padStr.split();
+							for (var i = 0; i < pads; i++) {
+								padding.push(padChars[i % padLen]);
+							}
+							return padding.join('').concat(str);
+						}
+					}
+
+					function _resolveDate(log) {
+						var messageBuilder = [];
+						if (log._showDate) {
+							var date = new Date();
+							messageBuilder.push(date.getFullYear())
+							messageBuilder.push('-');
+							messageBuilder.push(leftPad(date.getMonth(), 2, '0'));
+							messageBuilder.push('-');
+							messageBuilder.push(leftPad(date.getDate(), 2, '0'));
+							messageBuilder.push(' ');
+							messageBuilder.push(leftPad(date.getHours(), 2, '0'));
+							messageBuilder.push(':');
+							messageBuilder.push(leftPad(date.getMinutes(), 2, '0'));
+							messageBuilder.push(':');
+							messageBuilder.push(leftPad(date.getSeconds(), 2, '0'));
+							messageBuilder.push(',');
+							messageBuilder.push(date.getMilliseconds());
+							messageBuilder.push(' ');
+						}
+						return messageBuilder.join('');
+					}
+					
+					function _resolveError(log, error) {
+						var messageBuilder = [];
+						var throwError;
+						if (error) {
+							if (error.stack) {
+								throwError = error.stack;
+							} else if (error.message) {
+								throwError = error.message;
+							} else {
+								throwError = error.toString();
+							}
+						}
+						if (throwError) {
+							messageBuilder.push(log._separator);
+							messageBuilder.push('\n');
+							messageBuilder.push(throwError);
+						}
+						return messageBuilder.join('');
+					}
+					
+					function _log(log, stringLevel, message, error) {
+					 var level = Logger[stringLevel];
+					 if (!isUndefined(level) && log._level <= level ) {
+						var messageBuilder = [];
+						messageBuilder.push(_resolveDate(log));
+						messageBuilder.push('[');
+						messageBuilder.push(stringLevel);
+						messageBuilder.push('] ');
+						messageBuilder.push(log._name);
+						messageBuilder.push(log._separator);
+						messageBuilder.push((message || ''));
+						messageBuilder.push(_resolveError(log, error));
+						log._handler(messageBuilder.join(''), stringLevel);
+					 }
+					};
+					
+					return {
+						constructor: Logger,
+						trace: trace,
+						debug: debug,
+						info: info,
+						warn: warn,
+						error: error,
+						fatal: fatal,
+						isTraceEnabled: isTraceEnabled,
+						isDebugEnabled: isDebugEnabled,
+						isInfoEnabled: isInfoEnabled,
+						isWarnEnabled: isWarnEnabled,
+						isErrorEnabled: isErrorEnabled,
+						isFatalEnabled: isFatalEnabled
+					};
+					
+				})());
+
+				window.Logger = Logger;
+				
+			}(window);
+		
+			$(document).ready(function() {
+				
+				// Examples
+
+				var log_exam_1 = new Logger('Example 1');
+				
+				log_exam_1.debug('This is a simple debug log message.');
+
+				try {
+					throw new Error('Force exception');
+				} catch (e) {
+					log_exam_1.error('This is a simple error log message with exception.', e);
+				}
+				
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				var log_exam_2 = new Logger({
+					name: 'Example 2',
+					level: Logger.INFO
+				});
+				
+				log_exam_2.debug('NO REGISTER MESSAGE.');
+				log_exam_2.info('This is a info log message.');
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				var log_exam_3 = new Logger({
+					name: 'Example 3',
+					date: false
+				});
+				
+				log_exam_3.debug('This is a log message undated.');
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				var log_exam_4 = new Logger({
+					name: 'Example 4',
+					separator: ' #|# '
+				});
+				
+				log_exam_4.debug('This is a log message with personal separator.');
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				var log_exam_5 = new Logger({
+					name: 'Example 5',
+					handler: Logger.ALERT
+				});
+				
+				log_exam_5.debug('This is a alert log message.');
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+
+				var log_exam_6 = new Logger({
+					name: 'Example 6',
+					handler: function(message, level) {
+						window.console.log(['This is my personal logger -> ', message].join(''));
+					}
+				});
+				
+				log_exam_6.info('This is a info log message.');
+			});
+		</script>
+		
+		<style type="text/css">	
+			/*!
+			 * Bootstrap v2.2.2
+			 *
+			 * Copyright 2012 Twitter, Inc
+			 * Licensed under the Apache License v2.0
+			 * http://www.apache.org/licenses/LICENSE-2.0
+			 *
+			 * Designed and built with all the love in the world @twitter by @mdo and @fat.
+			 */
+			 
+			html {
+				font-size: 100%;
+				-webkit-text-size-adjust: 100%;
+						-ms-text-size-adjust: 100%;
+			}
+
+			body {
+				margin: 0;
+				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				line-height: 20px;
+				color: #333333;
+				background-color: #ffffff;
+			}
+			
+			h1,
+			h4 {
+				margin: 10px 0;
+				font-family: inherit;
+				font-weight: bold;
+				line-height: 20px;
+				color: inherit;
+				text-rendering: optimizelegibility;
+			}
+
+			h1 {
+				line-height: 40px;
+				font-size: 38.5px;
+			}
+
+			h4 {
+				font-weight: normal;
+				line-height: 1;
+				color: #999999;
+				font-size: 14px;
+			}
+
+			.page-header {
+				padding-bottom: 9px;
+				margin: 20px 0 30px;
+				border-bottom: 1px solid #eeeeee;
+			}
+	
+			.container {
+				width: 940px;
+				margin-right: auto;
+				margin-left: auto;
+				*zoom: 1;
+			}
+
+			.container:before,
+			.container:after {
+				display: table;
+				line-height: 0;
+				content: "";
+			}
+
+			.container:after {
+				clear: both;
+			}
+			
+			.row-fluid {
+				width: 100%;
+				*zoom: 1;
+			}
+
+			.row-fluid:before,
+			.row-fluid:after {
+				display: table;
+				line-height: 0;
+				content: "";
+			}
+
+			.row-fluid:after {
+				clear: both;
+			}
+
+			.row-fluid [class*="span"] {
+				display: block;
+				float: left;
+				width: 100%;
+				min-height: 30px;
+				margin-left: 2.127659574468085%;
+				*margin-left: 2.074468085106383%;
+				-webkit-box-sizing: border-box;
+					 -moz-box-sizing: border-box;
+								box-sizing: border-box;
+			}
+
+			.row-fluid [class*="span"]:first-child {
+				margin-left: 0;
+			}
+
+			.row-fluid .span12 {
+				width: 100%;
+				*width: 99.94680851063829%;
+			}
+
+			.text-warning,
+			.log-warn {
+				color: #c09853;
+			}
+
+			.text-error,
+			.log-error,
+			.log-fatal {
+				color: #b94a48;
+			}
+
+			.text-info,
+			.log-info { /*comutil desa workspace control global ruben protocolo*/
+				color: #3a87ad;
+			}
+
+			.text-success,
+			.log-debug {
+				color: #468847;
+			}
+			
+			.well {
+				min-height: 20px;
+				padding: 19px;
+				margin-bottom: 20px;
+				background-color: #f5f5f5;
+				border: 1px solid #e3e3e3;
+				-webkit-border-radius: 4px;
+					 -moz-border-radius: 4px;
+								border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+					 -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+								box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+			}
+
+			.well-small {
+				padding: 9px;
+				-webkit-border-radius: 3px;
+					 -moz-border-radius: 3px;
+								border-radius: 3px;
+			}
+
+			.fade {
+				opacity: 0;
+				-webkit-transition: opacity 0.25s linear;
+					 -moz-transition: opacity 0.25s linear;
+						 -o-transition: opacity 0.25s linear;
+								transition: opacity 0.25s linear;
+			}
+
+			.fade.in {
+				opacity: 1;
+				-webkit-transition: opacity 0.25s linear;
+					 -moz-transition: opacity 0.25s linear;
+						 -o-transition: opacity 0.25s linear;
+								transition: opacity 0.25s linear;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div class="container">
+			<div class="row-fliud">
+			
+				<div class="page-header">
+					<h1>Examples</h1>
+				</div>
+			
+				<div class="logger-container span12">
+				</div>
+				
+			</div>
+		</div>
+		
+	</body>
+</html>
