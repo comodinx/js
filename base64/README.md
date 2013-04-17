@@ -11,10 +11,6 @@ Comodinx Javascript library
 * [¿Como se utiliza?][getting_started].
 	+ [Utilizar una instancia][instance_base64].
 	+ [Utilizar directamente el objeto Base64][object_base64].
-	+ [Métodos para verificar el nivel de registración][is_methods].
-	+ [Definiendo un nuevo controlador][new_handler].
-* [Docs][docs]
-  + [Opciones de inicialización][docs_options].
 * [Licencia][license].
 
 
