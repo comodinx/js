@@ -50,7 +50,7 @@ Crea una instancia de Logger.
 	});
 ```
 
-#### logger.[method](message [, error]);
+#### logger.&#91;method&#93;(message &#91;, error&#93;);
 
 Registra un mensaje.
 
@@ -65,7 +65,7 @@ Registra un mensaje.
 	log.fatal('mi mensaje fatal');
 ```
 
-#### logger.is[level]Enabled();
+#### logger.is&#91;level&#93;Enabled();
 
 Indica si esta habilitado el registro de mensajes para el nivel especificado.
 
