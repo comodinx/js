@@ -21,27 +21,25 @@
 !function(window) {
 
 	var BUG_FOR_IN_SKIPS_SHADOWED = (function(){
-
+		var i;
 		// Test for bug where the for-in iterator skips object properties that exist in Object’s prototype (IE6 - ?).
 		// Extraido desde -> http://dojotoolkit.org/reference-guide/1.8/dojo/has.html#feature-names
-		for(var i in {toString: 1}){
+		for(i in {toString: 1}){
 			return false;
 		}
 		return true;
-	})();
+	})()
 	
-	var EXTRA_NAMES = (BUG_FOR_IN_SKIPS_SHADOWED ? "hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" ") : []);
+	, EXTRA_NAMES = (BUG_FOR_IN_SKIPS_SHADOWED ? "hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" ") : [])
 	
-	var core_toString = Object.prototype.toString;
+	, core_toString = Object.prototype.toString;
 
-	function extend(destination, source) {
-		for (var property in source) {
-			destination[property] = source[property];
-		}
-		return destination;
-	};
+	window.Class = (function() {
 	
-	var Class = (function() {
+		var defaultMethods = {
+			inherited: inherited,
+			toString: toString
+		};
 		
 		function _forceNew(klass){
 			tempKlass = new Function;
@@ -61,7 +59,8 @@
 		}
 		
 		function _addMethods(target, name, fn) {
-			var source = name;
+			var source = name
+				, extraNames;
 			if(core_toString.call(name) == "[object String]") {
 				source = {}; source[name] = fn;
 			}
@@ -71,7 +70,7 @@
 			}
 			
 			if(BUG_FOR_IN_SKIPS_SHADOWED) {
-				for(var extraNames = EXTRA_NAMES, i = extraNames.length; i;){
+				for(extraNames = EXTRA_NAMES, i = extraNames.length; i;){
 					name = extraNames[--i];
 					_addMethod(target, name, source[name]);
 				}
@@ -80,7 +79,8 @@
 		
 		function inherited() {
 			var args = arguments[0]
-				, cache = this._inherited = this._inherited || {c: this.constructor};
+				, cache = this._inherited = this._inherited || {c: this.constructor}
+				, exists, method, result;
 			
 			if(cache.c == Object) {
 				cache.c = this.constructor;
@@ -89,8 +89,8 @@
 			// Handle method
 			if(args.callee.declareMethod) {
 				
-				var exists = false
-					, method = args.callee.declareMethod;
+				exists = false;
+				method = args.callee.declareMethod;
 				
 				cache.c = this.constructor;
 				do {
@@ -100,7 +100,6 @@
 					}
 				} while(cache.c._meta && !exists);
 				
-				var result = undefined;
 				if(exists) {
 					result = cache.c.prototype[method].apply(this, args);
 				}
@@ -117,18 +116,15 @@
 			return ['Class<', this.declareClass, '>'].join('');
 		};
 		
-		var defaultMethods = {
-			inherited: inherited,
-			toString: toString
-		};
-		
-		var create = function (name, superclass, props) {
+		return {
+			create: function(name, superclass, props) {
 			if(typeof superclass !== 'function') {
 				props = superclass;
 				superclass = Object;
 			}
 			
-			var proto = _forceNew(superclass), klass;
+				var proto = _forceNew(superclass)
+					, klass;
 			
 			if (!props.constructor) {
 				props.constructor = Function;
@@ -153,26 +149,19 @@
 			};
 			
 			return klass;
-		};
+			},
 		
-		var addMethods = function(name, fn) {
+			addMethods: function(name, fn) {
 			_addMethods(defaultMethods, name, fn);
-		};
+			},
 		
-		var type = function(klass) {
+			type: function(klass) {
 			if (klass.declareClass) {
 				return toString.call(klass);
 			}
 			return core_toString.call(klass);
-		};
-		
-		return {
-			create: create,
-			addMethods: addMethods,
-			type: type
+			}
 		};
 	})();
-	
-	window.Class = Class;
 	
 }(window);

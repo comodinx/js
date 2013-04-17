@@ -23,7 +23,7 @@
 		return typeof o === 'undefined';
 	}
 	
-	var Logger = window.Class.create('Logger', (function() { 
+	window.Logger = window.Class.create('Logger', (function() { 
 	
 		var Logger = function(options) {
 			options = (options || {})
@@ -56,20 +56,6 @@
 		Logger.ERROR 	= 3;
 		Logger.FATAL 	= 4;
 		
-		var trace = function(message, error) { return _log(this, "TRACE", message, error); };
-		var debug = function(message, error) { return _log(this, "DEBUG", message, error); };
-		var info  = function(message, error) { return _log(this, "INFO",  message, error); };
-		var warn  = function(message, error) { return _log(this, "WARN",  message, error); };
-		var error = function(message, error) { return _log(this, "ERROR", message, error); };
-		var fatal = function(message, error) { return _log(this, "FATAL", message, error); };
-		
-		var isTraceEnabled = function() { return this._level <= Logger.TRACE; };
-		var isDebugEnabled = function() { return this._level <= Logger.DEBUG; };
-		var isInfoEnabled = function() { return this._level <= Logger.INFO; };
-		var isWarnEnabled = function() { return this._level <= Logger.WARN; };
-		var isErrorEnabled = function() { return this._level <= Logger.ERROR; };
-		var isFatalEnabled = function() { return this._level <= Logger.FATAL; };
-		
 		function leftPad(str, size, padStr) {
 			if (isUndefined(str)) {
 				return;
@@ -79,13 +65,16 @@
 			}
 			
 			str = str.toString();
-			var padLen = padStr.length;
-			var strLen = str.length;
-			var pads = size - strLen;
-			if (pads <= 0) {
+			if ((size - str.length) <= 0) {
 				return str; // returns original String when possible
 			}
 			
+			var padLen = padStr.length
+				, strLen = str.length
+				, pads = size - strLen
+				, padding
+				, padChars
+				, i;
 			if (pads == padLen) {
 				return padStr.concat(str);
 				
@@ -93,9 +82,9 @@
 				return padStr.substring(0, pads).concat(str);
 				
 			} else {
-				var padding = [];
-				var padChars = padStr.split();
-				for (var i = 0; i < pads; i++) {
+				padding = [];
+				padChars = padStr.split();
+				for (i = 0; i < pads; i++) {
 					padding.push(padChars[i % padLen]);
 				}
 				return padding.join('').concat(str);
@@ -103,9 +92,10 @@
 		}
 
 		function _resolveDate(log) {
-			var messageBuilder = [];
+			var messageBuilder = []
+				, date;
 			if (log._showDate) {
-				var date = new Date();
+				date = new Date();
 				messageBuilder.push(date.getFullYear())
 				messageBuilder.push('-');
 				messageBuilder.push(leftPad(date.getMonth(), 2, '0'));
@@ -125,8 +115,8 @@
 		}
 		
 		function _resolveError(log, error) {
-			var messageBuilder = [];
-			var throwError;
+			var messageBuilder = []
+				, throwError;
 			if (error) {
 				if (error.stack) {
 					throwError = error.stack;
@@ -145,9 +135,10 @@
 		}
 		
 		function _log(log, stringLevel, message, error) {
-		 var level = Logger[stringLevel];
+			var level = Logger[stringLevel]
+				, messageBuilder;
 		 if (!isUndefined(level) && log._level <= level ) {
-			var messageBuilder = [];
+				messageBuilder = [];
 			messageBuilder.push(_resolveDate(log));
 			messageBuilder.push('[');
 			messageBuilder.push(stringLevel);
@@ -162,22 +153,22 @@
 		
 		return {
 			constructor: Logger,
-			trace: trace,
-			debug: debug,
-			info: info,
-			warn: warn,
-			error: error,
-			fatal: fatal,
-			isTraceEnabled: isTraceEnabled,
-			isDebugEnabled: isDebugEnabled,
-			isInfoEnabled: isInfoEnabled,
-			isWarnEnabled: isWarnEnabled,
-			isErrorEnabled: isErrorEnabled,
-			isFatalEnabled: isFatalEnabled
+			
+			trace: function(message, error) { return _log(this, "TRACE", message, error); },
+			debug: function(message, error) { return _log(this, "DEBUG", message, error); },
+			info: function(message, error) { return _log(this, "INFO",  message, error); },
+			warn: function(message, error) { return _log(this, "WARN",  message, error); },
+			error: function(message, error) { return _log(this, "ERROR", message, error); },
+			fatal: function(message, error) { return _log(this, "FATAL", message, error); },
+			
+			isTraceEnabled: function() { return this._level <= Logger.TRACE; },
+			isDebugEnabled: function() { return this._level <= Logger.DEBUG; },
+			isInfoEnabled: function() { return this._level <= Logger.INFO; },
+			isWarnEnabled: function() { return this._level <= Logger.WARN; },
+			isErrorEnabled: function() { return this._level <= Logger.ERROR; },
+			isFatalEnabled: function() { return this._level <= Logger.FATAL; }
 		};
 		
 	})());
-
-	window.Logger = Logger;
 	
 }(window);
