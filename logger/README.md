@@ -8,12 +8,12 @@ Comodinx Javascript library
 ------
 
 * [Introducción][introduction].
-* [Caracterásticas][features].
+* [Características][features].
 * [¿Como se utiliza?][getting_started].
 	+ [Nuevo logger][new_logger].
 	+ [Métodos de registración][log_methods].
 	+ [Métodos para verificar el nivel de registración][is_methods].
-	+ [Definiendo un nuevo tipo][new_type].
+	+ [Definiendo un nuevo controlador][new_handler].
 * [Docs][docs]
   + [Opciones de inicialización][docs_options].
 * [Licencia][license].
@@ -26,7 +26,7 @@ CX Logger consta de cx-class.js y cx-logger.js.
 Permite la registración de mensajes.
 
 	
-Caracterásticas
+Características
 ---------------
 * Registración de mensajes personalizable.
 
@@ -38,7 +38,7 @@ Caracterásticas
 
 Crea una instancia de Logger.
 
-`options` puede ser de tipo `string` indicando el nombre del logger o un objeto donde se especificaquen la [opciones deceadas][docs_options].
+`options` puede ser de tipo `string` indicando el nombre del logger o un objeto donde se especifique la [opciones deseadas][docs_options].
 
 ```javascript
 	var log1 = new Logger('MyApp');
@@ -97,6 +97,19 @@ Indica si esta habilitado el registro de mensajes para el nivel especificado.
 	}
 ```
 
+#### Nuevo controlador.
+
+Permite establecer un nuevo controlador de registración de mensajes.
+
+```javascript
+	var log = new Logger({
+		name: 'MyApp',
+		handler: function(message, level) {
+			window.console.log('My handler -> ' + message);
+		}
+	});
+```
+
 
 Docs
 ----
@@ -129,7 +142,7 @@ Docs
 			<td>Number</td>
 			<td>Logger.DEBUG (0)</td>
 			<td>
-				Indica el nivel de mensaje que se debe registrar registrar.
+				Indica el nivel de mensaje que se debe registrar.
 				Posibles valores: 
 				<ul>
 					<li>Logger.TRACE: -1</li>
@@ -152,7 +165,7 @@ Docs
 			<td>Function</td>
 			<td>Logger.CONSOLE</td>
 			<td>
-				Funcion encargada de procesar los mensajes.
+				Función encargada de procesar los mensajes.
 				Posibles valores: 
 				<ul>
 					<li>Logger.CONSOLE</li>
@@ -185,6 +198,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [new_logger]: #new-loggeroptions
 [log_methods]: #loggermethodmessage-error
 [is_methods]: #loggerislevelenabled
+[new_handler]: #nuevo-controlador
 [docs]: #docs
 [docs_options]: #opciones-de-inicializacin
 [license]: #licencia
