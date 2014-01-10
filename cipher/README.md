@@ -9,39 +9,149 @@ Comodinx Javascript library
 
 * [Introducción][introduction].
 * [¿Como se utiliza?][getting_started].
-	+ [Utilizar una instancia][instance_base64].
-	+ [Utilizar directamente el objeto Base64][object_base64].
+	+ [Cipher.utf8Encode][cipher_utf8encode].
+	+ [Cipher.base64Encode][cipher_base64encode].
+	+ [Cipher.base64Decode][cipher_base64decode].
+	+ [Cipher.strToHex][cipher_strtohex].
+	+ [Cipher.hexToStr][cipher_hextostr].
+	+ [Cipher.sha1][cipher_sha1].
+	+ [Cipher.md5][cipher_md5].
 * [Licencia][license].
 
 
 Introducción
 ------------
-CX Base64 consta de cx-class.js y cx-base64.js. 
+CX Cipher consta de cx-class.js y cx-cipher.js. 
 
-Permite codificar y decodificar en base64.
+Permite realizar las siguientes codificaciones:
+
+ * UTF8
+ * Base64
+ * Hexadecimal
+ * SHA1
+ * MD5
 
 
 ¿Como se utiliza?
 -----------------
 
-#### Utilizar una instancia
+#### Cipher.utf8Encode(input);
 
-Crea una instancia de Base64.
+Permite codificar un string en UTF8.
 
 ```javascript
-	var base64 = new Base64();
-	
-	var pass = 'admin'
-		, passBase64Encode = base64.encode(pass)
-		, passBase64Decode = base64.decode(passBase64Encode);
+	var cipher = new Cipher();
+		, input = 'Prueba de codificación en UTF8';
+		
+	cipher.utf8Encode(input); // Prueba de codificaciÃ³n en UTF8
 ```
 
-#### Utilizar directamente el objeto Base64
+```javascript
+	var input = 'Prueba de codificación en UTF8';
+		
+	Cipher.utf8Encode(input); // Prueba de codificaciÃ³n en UTF8
+```
+
+#### Cipher.base64Encode(input);
+
+Permite codificar un string en Base64.
 
 ```javascript
-	var pass = 'admin'
-		, passBase64Encode = Base64.encode(pass)
-		, passBase64Decode = Base64.decode(passBase64Encode);
+	var cipher = new Cipher();
+		, input = 'admin';
+		
+	cipher.base64Encode(input); // YWRtaW4=
+```
+
+```javascript
+	var input = 'admin';
+		
+	Cipher.base64Encode(input); // YWRtaW4=
+```
+
+#### Cipher.base64Decode(input);
+
+Permite decodificar un Base64 en string.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'UHJ1ZWJhIEJhc2U2NCBkZWNvZGU=';
+		
+	cipher.base64Decode(input); // Prueba Base64 decode
+```
+
+```javascript
+	var input = 'UHJ1ZWJhIEJhc2U2NCBkZWNvZGU=';
+		
+	Cipher.base64Decode(input); // Prueba Base64 decode
+```
+
+#### Cipher.strToHex(input);
+
+Permite codificar un string en hexadecimal.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'admin';
+		
+	cipher.strToHex(input); // 61646d696e
+```
+
+```javascript
+	var input = 'admin';
+		
+	Cipher.strToHex(input); // 61646d696e
+```
+
+#### Cipher.hexToStr(input);
+
+Permite decodificar un hexadecimal en string.
+
+```javascript
+	var cipher = new Cipher();
+		, input = '5072756562612048657861646563696d616c20746f20537472696e67';
+		
+	cipher.hexToStr(input); // Prueba Hexadecimal to String
+```
+
+```javascript
+	var input = '5072756562612048657861646563696d616c20746f20537472696e67';
+		
+	Cipher.hexToStr(input); // Prueba Hexadecimal to String
+```
+
+#### Cipher.sha1(input);
+
+Permite codificar un string en SHA1.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'admin';
+		
+	cipher.sha1(input); // d033e22ae348aeb5660fc2140aec35850c4da997
+```
+
+```javascript
+	var input = 'admin';
+		
+	Cipher.sha1(input); // d033e22ae348aeb5660fc2140aec35850c4da997
+```
+
+#### Cipher.md5(input);
+
+Permite codificar un string en MD5.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'admin';
+		
+	cipher.md5(input); // 21232f297a57a5a743894a0e4a801fc3
+```
+
+```javascript
+	var input = 'admin';
+		
+	Cipher.md5(input); // 21232f297a57a5a743894a0e4a801fc3
 ```
 
 
@@ -62,4 +172,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [getting_started]: #como-se-utiliza
 [instance_base64]: #utilizar-una-instancia
 [object_base64]: #utilizar-directamente-el-objeto-base64
+[cipher_utf8encode]: #cipherutf8encodeinput
+[cipher_base64encode]: #cipherbase64encodeinput
+[cipher_base64decode]: #cipherbase64decodeinput
+[cipher_strtohex]: #cipherstrtohexinput
+[cipher_hextostr]: #cipherhextostrinput
+[cipher_sha1]: #ciphersha1input
+[cipher_md5]: #ciphermd5input
 [license]: #licencia
