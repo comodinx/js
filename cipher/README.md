@@ -1,4 +1,4 @@
-CX Base64
+CX Cipher
 ==
 
 Comodinx Javascript library
@@ -170,8 +170,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 <!-- deep links -->
 [introduction]: #introduccin
 [getting_started]: #como-se-utiliza
-[instance_base64]: #utilizar-una-instancia
-[object_base64]: #utilizar-directamente-el-objeto-base64
 [cipher_utf8encode]: #cipherutf8encodeinput
 [cipher_base64encode]: #cipherbase64encodeinput
 [cipher_base64decode]: #cipherbase64decodeinput
