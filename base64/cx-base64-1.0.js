@@ -16,7 +16,9 @@
  
 !function(window) {
 	
-	window.Base64 = Class.create("Base64", (function() {
+	var Class = window.Class
+	
+		, Base64 = Class.create("Base64", (function() {
 
 		var CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
 		
@@ -136,5 +138,7 @@
 			decode: Base64.decode
 		};
 	})());
+	
+	window.Base64 = Base64;
 	
 }(window);

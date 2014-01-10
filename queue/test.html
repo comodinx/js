@@ -1,0 +1,141 @@
+<html>
+	<head>
+		<title>CX Queue Tests</title>
+		
+		<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.13.0.css">
+    
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.13.0.js"></script>
+		
+		<script type="text/javascript" >
+			/**
+			 * CX Class - Version 1.1
+			 * 
+			 * Description:
+			 * 	Allows creation of classes.
+			 * 
+			 * Inspired in
+			 * 	Dojo Toolkit 1.8 - http://dojotoolkit.org/
+			 * 	Prototype 1.7.1 - http://prototypejs.org/
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2014 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 * 
+			 * Maintained by
+			 * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
+			 */
+			!function(window){var BUG_FOR_IN_SKIPS_SHADOWED=(function(){var i;for(i in {toString:1}){return false}return true})(),EXTRA_NAMES=(BUG_FOR_IN_SKIPS_SHADOWED?"hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" "):[]),core_toString=Object.prototype.toString;window.Class=(function(){var defaultMethods={inherited:inherited,toString:toString};function _forceNew(klass){var tempKlass=new Function;tempKlass.prototype=klass.prototype;var instanceTempKlass=new tempKlass;tempKlass.prototype=null;return instanceTempKlass}function _addMethod(target,name,fn){if((fn!==Object.prototype[name]||!(name in Object.prototype))&&name!="constructor"){if(core_toString.call(fn)=="[object Function]"){fn.declareMethod=name}target[name]=fn}}function _addMethods(target,name,fn){var source=name,extraNames;if(core_toString.call(name)=="[object String]"){source={};source[name]=fn}for(name in source){_addMethod(target,name,source[name])}if(BUG_FOR_IN_SKIPS_SHADOWED){for(extraNames=EXTRA_NAMES,i=extraNames.length;i;){name=extraNames[--i];_addMethod(target,name,source[name])}}}function inherited(){var args=arguments[0],cache=this._inherited=this._inherited||{c:this.constructor},exists,method,result;if(cache.c==Object){cache.c=this.constructor}if(args.callee.declareMethod){exists=false;method=args.callee.declareMethod;cache.c=this.constructor;do{cache.c=cache.c._meta.superclass;if(cache.c.prototype[method]){exists=true}}while(cache.c._meta&&!exists);if(exists){result=cache.c.prototype[method].apply(this,args)}return result}else{cache.c=cache.c._meta.superclass;return cache.c.apply(this,args)}}function toString(){return["Class<",this.declareClass,">"].join("")}return{create:function(name,superclass,props){if(typeof superclass!=="function"){props=superclass;superclass=Object}var proto=_forceNew(superclass),klass;if(!props.constructor){props.constructor=Function}klass=props.constructor;_addMethods(klass,{addMethods:function(name,fn){_addMethods(this.prototype,name,fn)}});_addMethods(proto,defaultMethods);proto.declareClass=name;proto.constructor=klass;_addMethods(proto,props);klass.prototype=proto;klass._meta={superclass:superclass};return klass},addMethods:function(name,fn){_addMethods(defaultMethods,name,fn)},type:function(klass){if(klass.declareClass){return toString.call(klass)}return core_toString.call(klass)}}})()}(window);
+
+			/**
+			 * CX Queue - Version 1.0
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 */
+			!function(window){var Queue=window.Class.create("Queue",(function(){var Queue=function(options){this._queue=((options?options.queue:[])||[]);this._offset=0};function length(){return(this._queue.length-this._offset)}function isEmpty(){return(this._queue.length==0)}function push(item){this._queue.push(item)}function pop(){if(this.isEmpty()){return}var item=this._queue[this._offset];if((++this._offset*2)>=this._queue.length){this._queue=Array.prototype.slice.call(this._queue,this._offset);this._offset=0}return item}function peek(offset){return(!this.isEmpty()?this._queue[offset]:undefined)}function contains(item){return (this._queue.indexOf(item) > -1);}function toString(offset) {if (this.isEmpty()) {return "[]";}var sb = [], i, l;sb.push("[");for(i = 0, l = this.length(); i < l; i++) {sb.push(this.peek(i));if ((i+1) < l) {sb.push(", ");}}sb.push("]");return sb.join("");}return{constructor:Queue,length:length,isEmpty:isEmpty,push:push,pop:pop,peek:peek,contains:contains,toString:toString}})());window.Queue=Queue}(window);
+			
+			$(document).ready(function() {
+				QUnit.assert.contains = function(queue, item, message ) {
+					var has = (queue.contains(item));
+					QUnit.push(has, has, item, message);
+				};
+				
+				// Examples
+				test('Expected queue pop "a" and next pop undefined', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					
+          equal( q.pop(), 'a', 'queue.pop(), "a"; equal succeeds!' );
+          ok( !q.pop(), '!queue.pop(); ok succeeds!' );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Expected queue length 4', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					q.push('b');
+					q.push('c');
+					q.push('d');
+					
+          equal( q.length(), 4, 'queue.length(), 4; equal succeeds!' );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Expected queue not empty', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					q.push('b');
+					q.push('c');
+					q.push('d');
+					
+          ok( !q.isEmpty(), '!queue.isEmpty(); ok succeeds!' );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Expected queue peek offset 2 equal "c"', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					q.push('b');
+					q.push('c');
+					q.push('d');
+					
+          equal( q.peek(2), 'c', '!queue.peek(2), "c"; equal succeeds!' );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Expected queue contains "d"', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					q.push('b');
+					q.push('c');
+					q.push('d');
+					
+          ok( q.contains('d'), 'q.contains("d"); ok succeeds!' );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Expected queue toString [a, b, c, d]', function() {
+          var q = new Queue();
+          
+					q.push('a');
+					q.push('b');
+					q.push('c');
+					q.push('d');
+					
+          equal( q.toString(), '[a, b, c, d]', 'queue.toString(), [a, b, c, d]; equal succeeds!' );
+				});
+				
+			});
+		</script>
+	</head>
+	<body>
+		<div id="qunit"></div>
+		<div id="qunit-fixture"></div>
+	</body>
+</html>

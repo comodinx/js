@@ -22,7 +22,7 @@
 
 	var BUG_FOR_IN_SKIPS_SHADOWED = (function(){
 		var i;
-		// Test for bug where the for-in iterator skips object properties that exist in Objectâ€™s prototype (IE6 - ?).
+		// Test for bug where the for-in iterator skips object properties that exist in Object’s prototype (IE6 - ?).
 		// Extraido desde -> http://dojotoolkit.org/reference-guide/1.8/dojo/has.html#feature-names
 		for(i in {toString: 1}){
 			return false;
