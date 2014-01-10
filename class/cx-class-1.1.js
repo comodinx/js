@@ -12,7 +12,7 @@
  * 	MIT license. 
  * 
  * Copyright:
- * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+ * 	Copyright (c) 2013 - 2014 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
  * 
  * Maintained by
  * 	Nicolas Molina <molinan@firstsystems.com.ar>, <comodinx@gmail.com>
@@ -22,7 +22,7 @@
 
 	var BUG_FOR_IN_SKIPS_SHADOWED = (function(){
 		var i;
-		// Test for bug where the for-in iterator skips object properties that exist in Object’s prototype (IE6 - ?).
+		// Test for bug where the for-in iterator skips object properties that exist in Objectâ€™s prototype (IE6 - ?).
 		// Extraido desde -> http://dojotoolkit.org/reference-guide/1.8/dojo/has.html#feature-names
 		for(i in {toString: 1}){
 			return false;
@@ -42,7 +42,7 @@
 		};
 		
 		function _forceNew(klass){
-			tempKlass = new Function;
+			var tempKlass = new Function;
 			tempKlass.prototype = klass.prototype;
 			var instanceTempKlass = new tempKlass;
 			tempKlass.prototype = null;
@@ -116,50 +116,57 @@
 			return ['Class<', this.declareClass, '>'].join('');
 		};
 		
-		return {
+		return {			
 			create: function(name, superclass, props) {
-			if(typeof superclass !== 'function') {
-				props = superclass;
-				superclass = Object;
-			}
+				if(typeof superclass !== 'function') {
+					props = superclass;
+					superclass = Object;
+				}
 			
 				var proto = _forceNew(superclass)
 					, klass;
 			
-			if (!props.constructor) {
-				props.constructor = Function;
-			}
-			
-			klass = props.constructor;
-			
-			// Add default methods
-			_addMethods(proto, defaultMethods);
-			
-			// Add default properties
-			proto.declareClass = name;
-			proto.constructor = klass;
-			
-			// Add properties
-			_addMethods(proto, props);
-
-			// Add prototype and metadata
-			klass.prototype = proto;
-			klass._meta = {
-				superclass: superclass
-			};
-			
-			return klass;
+				if (!props.constructor) {
+					props.constructor = Function;
+				}
+				
+				klass = props.constructor;
+				
+				// Add class methods
+				_addMethods(klass, {
+					addMethods: function(name, fn) {
+						_addMethods(this.prototype, name, fn);
+					}
+				});
+				
+				// Add default methods
+				_addMethods(proto, defaultMethods);
+				
+				// Add default properties
+				proto.declareClass = name;
+				proto.constructor = klass;
+				
+				// Add properties
+				_addMethods(proto, props);
+				
+				// Add prototype and metadata
+				klass.prototype = proto;
+				klass._meta = {
+					superclass: superclass
+				};
+				
+				return klass;
 			},
-		
+				
 			addMethods: function(name, fn) {
-			_addMethods(defaultMethods, name, fn);
+				_addMethods(defaultMethods, name, fn);
 			},
-		
+				
 			type: function(klass) {
-			if (klass.declareClass) {
-				return toString.call(klass);
-			}
-			return core_toString.call(klass);
+				if (klass.declareClass) {
+					return toString.call(klass);
+				}
+				return core_toString.call(klass);
 			}
 		};
 	})();
