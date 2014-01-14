@@ -1,5 +1,5 @@
 /**
- * CX Cipher - Version 1.0
+ * CX Cipher - Version 1.1
  * 
  * Dependecias:
  * 	cx-class >= 1.0
@@ -29,9 +29,7 @@
 				, c, n, l;
 
 			for (n = 0, l = input.length; n < l; n++) {
-
 				c = input.charCodeAt(n);
-
 				if (c < 128) {
 					utftext += String.fromCharCode(c);
 				} else if ((c > 127) && (c < 2048)) {
@@ -53,18 +51,26 @@
     Cipher.base64Decode = Base64.decode;
 		
 		// String to Hex
-		Cipher.strToHex = function (input) {
+		Cipher.strToHex = function (input, separator) {
 			var a = []
 				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
 			for (i = 0, l = input.length; i < l; i++) {
 				c = input.charCodeAt(i);
 				a.push(c.toString(16));
+				if ((i+1) < l) {
+					a.push(separator);
+				}
 			}
 			return a.join('');
 		}
 		
 		// Hex to String
-		Cipher.hexToStr = function (input) {
+		Cipher.hexToStr = function (input, separator) {
+			if (separator) {
+				input = input.split(separator).join('');
+			}
+			
 			var a = []
 				, i, l, c;
       for (i = 0, l = input.length; i < l; i += 2) {
@@ -402,7 +408,82 @@
 			temp = _sha1_hex(H0) + _sha1_hex(H1) + _sha1_hex(H2) + _sha1_hex(H3) + _sha1_hex(H4);
 			return temp.toLowerCase();
 		};
+
+		// ROT
 		
+		// ROT 5
+		Cipher.rot5 = function (input) {
+			var s = []
+				, i, l, c;
+			for (i = 0, l = input.length; i < l; i++) {
+				c = input.charCodeAt(i);
+				if ((c >= 48) && (c <= 57)) {
+					if (c <= 52) {
+						s.push(String.fromCharCode(c + 5));
+						
+					} else {
+						s.push(String.fromCharCode(c - 5));
+					}
+				} else {
+					s.push(String.fromCharCode(c));
+				}
+			}
+			return s.join('');
+		}
+		
+		// ROT 13
+		Cipher.rot13 = function (input) {
+			return input.replace(/[a-zA-Z]/g, function(c) {
+				return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+			});
+		};
+		
+		// ROT 47
+		Cipher.rot47 = function (input) {
+			var s = []
+				, i, l, c;
+			for (i = 0, l = input.length; i < l; i++) {
+				c = input.charCodeAt(i);
+				if ((c >= 33) && (c <= 126)) {
+					s.push(String.fromCharCode(33 + ((c + 14) % 94)));
+					
+				} else {
+					s.push(String.fromCharCode(c));
+				}
+			}
+			return s.join('');
+		};
+		
+		// Binary
+		Cipher.binary = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			for (i = 0, l = input.length; i < l; i++) {
+				c = input[i].charCodeAt(0);
+				s.push(c.toString(2));
+				if ((i+1) < l) {
+					s.push(separator);
+				}
+			}
+			return s.join('');
+		};
+		
+		// Decimal
+		Cipher.decimal = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			for(i = 0, l = input.length; i < l; i++) {
+				c = input.charCodeAt(i);
+				s.push(c);
+				if ((i+1) < l) {
+					s.push(separator);
+				}
+			}
+			return s.join('');
+		};
+
 		return {
 			constructor: Cipher,
 			utf8Encode: Cipher.utf8Encode,
@@ -411,7 +492,12 @@
 			strToHex: Cipher.strToHex,
       hexToStr: Cipher.hexToStr,
 			sha1: Cipher.sha1,
-			md5: Cipher.md5
+			md5: Cipher.md5,
+			rot5: Cipher.rot5,
+			rot13: Cipher.rot13,
+			rot47: Cipher.rot47,
+			binary: Cipher.binary,
+			decimal: Cipher.decimal
 		};
 	})());
 	

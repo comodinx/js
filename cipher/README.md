@@ -16,6 +16,11 @@ Comodinx Javascript library
 	+ [Cipher.hexToStr][cipher_hextostr].
 	+ [Cipher.sha1][cipher_sha1].
 	+ [Cipher.md5][cipher_md5].
+	+ [Cipher.rot5][cipher_rot5].
+	+ [Cipher.rot13][cipher_rot13].
+	+ [Cipher.rot47][cipher_rot47].
+	+ [Cipher.binary][cipher_binary].
+	+ [Cipher.decimal][cipher_decimal].
 * [Licencia][license].
 
 
@@ -30,6 +35,11 @@ Permite realizar las siguientes codificaciones:
  * Hexadecimal
  * SHA1
  * MD5
+ * ROT 5
+ * ROT 13
+ * ROT 47
+ * Binario
+ * Decimal
 
 
 ¿Como se utiliza?
@@ -94,13 +104,17 @@ Permite codificar un string en hexadecimal.
 	var cipher = new Cipher();
 		, input = 'admin';
 		
-	cipher.strToHex(input); // 61646d696e
+	cipher.strToHex(input); // 61 64 6d 69 6e
+	
+	cipher.strToHex(input, ""); // 61646d696e
 ```
 
 ```javascript
 	var input = 'admin';
 		
-	Cipher.strToHex(input); // 61646d696e
+	Cipher.strToHex(input); // 61 64 6d 69 6e
+	
+	Cipher.strToHex(input, ""); // 61646d696e
 ```
 
 #### Cipher.hexToStr(input);
@@ -112,12 +126,18 @@ Permite decodificar un hexadecimal en string.
 		, input = '5072756562612048657861646563696d616c20746f20537472696e67';
 		
 	cipher.hexToStr(input); // Prueba Hexadecimal to String
+	
+	input = '50 72 75 65 62 61 20 48 65 78 61 64 65 63 69 6d 61 6c 20 74 6f 20 53 74 72 69 6e 67';
+	cipher.hexToStr(input, " "); // Prueba Hexadecimal to String
 ```
 
 ```javascript
 	var input = '5072756562612048657861646563696d616c20746f20537472696e67';
 		
 	Cipher.hexToStr(input); // Prueba Hexadecimal to String
+	
+	input = '50 72 75 65 62 61 20 48 65 78 61 64 65 63 69 6d 61 6c 20 74 6f 20 53 74 72 69 6e 67';
+	Cipher.hexToStr(input, " "); // Prueba Hexadecimal to String
 ```
 
 #### Cipher.sha1(input);
@@ -154,12 +174,97 @@ Permite codificar un string en MD5.
 	Cipher.md5(input); // 21232f297a57a5a743894a0e4a801fc3
 ```
 
+#### Cipher.rot5(input);
+
+Permite codificar y decodificar un string en ROT5.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.rot5(input); // ABCD6789
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.rot5(input); // ABCD6789
+```
+
+#### Cipher.rot13(input);
+
+Permite codificar y decodificar un string en ROT13.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.rot13(input); // NOPQ1234
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.rot13(input); // NOPQ1234
+```
+
+#### Cipher.rot47(input);
+
+Permite codificar y decodificar un string en ROT47.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.rot47(input); // pqrs`abc
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.rot47(input); // pqrs`abc
+```
+
+#### Cipher.binary(input);
+
+Permite codificar un string en binario.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.binary(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.binary(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
+```
+
+#### Cipher.decimal(input);
+
+Permite codificar un string en binario.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.decimal(input); // 65 66 67 68 49 50 51 52
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.decimal(input); // 65 66 67 68 49 50 51 52
+```
+
 
 Licencia
 --------
 The MIT License (MIT)
 
-Copyright (c) 2013 - 2013 [Nicolás Molina - Comodinx and contributions]
+Copyright (c) 2013 - 2014 [Nicolás Molina - Comodinx and contributions]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -173,8 +278,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [cipher_utf8encode]: #cipherutf8encodeinput
 [cipher_base64encode]: #cipherbase64encodeinput
 [cipher_base64decode]: #cipherbase64decodeinput
-[cipher_strtohex]: #cipherstrtohexinput
-[cipher_hextostr]: #cipherhextostrinput
+[cipher_strtohex]: #cipherstrtohexinputseparator
+[cipher_hextostr]: #cipherhextostrinputseparator
 [cipher_sha1]: #ciphersha1input
 [cipher_md5]: #ciphermd5input
+[cipher_rot5]: #cipherrot5input
+[cipher_rot13]: #cipherrot13input
+[cipher_rot47]: #cipherrot47input
+[cipher_binary]: #cipherbinaryinputseparator
+[cipher_decimal]: #cipherdecimalinputseparator
 [license]: #licencia
