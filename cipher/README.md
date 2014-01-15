@@ -12,15 +12,17 @@ Comodinx Javascript library
 	+ [Cipher.utf8Encode][cipher_utf8encode].
 	+ [Cipher.base64Encode][cipher_base64encode].
 	+ [Cipher.base64Decode][cipher_base64decode].
-	+ [Cipher.strToHex][cipher_strtohex].
-	+ [Cipher.hexToStr][cipher_hextostr].
+	+ [Cipher.hexaEncode][cipher_hexaencode].
+	+ [Cipher.hexaDecode][cipher_hexadecode].
+	+ [Cipher.binaryEncode][cipher_binaryencode].
+	+ [Cipher.binaryDecode][cipher_binarydecode].
+	+ [Cipher.decimalEncode][cipher_decimalencode].
+	+ [Cipher.decimalDecode][cipher_decimaldecode].
 	+ [Cipher.sha1][cipher_sha1].
 	+ [Cipher.md5][cipher_md5].
 	+ [Cipher.rot5][cipher_rot5].
 	+ [Cipher.rot13][cipher_rot13].
 	+ [Cipher.rot47][cipher_rot47].
-	+ [Cipher.binary][cipher_binary].
-	+ [Cipher.decimal][cipher_decimal].
 * [Licencia][license].
 
 
@@ -33,13 +35,13 @@ Permite realizar las siguientes codificaciones:
  * UTF8
  * Base64
  * Hexadecimal
+ * Binario
+ * Decimal
  * SHA1
  * MD5
  * ROT 5
  * ROT 13
  * ROT 47
- * Binario
- * Decimal
 
 
 ¿Como se utiliza?
@@ -96,7 +98,7 @@ Permite decodificar un Base64 en string.
 	Cipher.base64Decode(input); // Prueba Base64 decode
 ```
 
-#### Cipher.strToHex(input);
+#### Cipher.hexaEncode(input[, separator]);
 
 Permite codificar un string en hexadecimal.
 
@@ -104,20 +106,20 @@ Permite codificar un string en hexadecimal.
 	var cipher = new Cipher();
 		, input = 'admin';
 		
-	cipher.strToHex(input); // 61 64 6d 69 6e
+	cipher.hexaEncode(input); // 61 64 6d 69 6e
 	
-	cipher.strToHex(input, ""); // 61646d696e
+	cipher.hexaEncode(input, ""); // 61646d696e
 ```
 
 ```javascript
 	var input = 'admin';
 		
-	Cipher.strToHex(input); // 61 64 6d 69 6e
+	Cipher.hexaEncode(input); // 61 64 6d 69 6e
 	
-	Cipher.strToHex(input, ""); // 61646d696e
+	Cipher.hexaEncode(input, ""); // 61646d696e
 ```
 
-#### Cipher.hexToStr(input);
+#### Cipher.hexaDecode(input[, separator]);
 
 Permite decodificar un hexadecimal en string.
 
@@ -125,19 +127,87 @@ Permite decodificar un hexadecimal en string.
 	var cipher = new Cipher();
 		, input = '5072756562612048657861646563696d616c20746f20537472696e67';
 		
-	cipher.hexToStr(input); // Prueba Hexadecimal to String
+	cipher.hexaDecode(input); // Prueba Hexadecimal to String
 	
 	input = '50 72 75 65 62 61 20 48 65 78 61 64 65 63 69 6d 61 6c 20 74 6f 20 53 74 72 69 6e 67';
-	cipher.hexToStr(input, " "); // Prueba Hexadecimal to String
+	cipher.hexaDecode(input, " "); // Prueba Hexadecimal to String
 ```
 
 ```javascript
 	var input = '5072756562612048657861646563696d616c20746f20537472696e67';
 		
-	Cipher.hexToStr(input); // Prueba Hexadecimal to String
+	Cipher.hexaDecode(input); // Prueba Hexadecimal to String
 	
 	input = '50 72 75 65 62 61 20 48 65 78 61 64 65 63 69 6d 61 6c 20 74 6f 20 53 74 72 69 6e 67';
-	Cipher.hexToStr(input, " "); // Prueba Hexadecimal to String
+	Cipher.hexaDecode(input, " "); // Prueba Hexadecimal to String
+```
+
+#### Cipher.binaryEncode(input[, separator]);
+
+Permite codificar un string en binario.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.binaryEncode(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.binaryEncode(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
+```
+
+#### Cipher.binaryDecode(input[, separator]);
+
+Permite decodificar un string binario en string.
+
+```javascript
+	var cipher = new Cipher();
+		, input = '1000001 1000010 1000011 1000100 110001 110010 110011 110100';
+		
+	cipher.binaryDecode(input); // ABCD1234
+```
+
+```javascript
+	var input = '1000001 1000010 1000011 1000100 110001 110010 110011 110100';
+		
+	Cipher.binaryDecode(input); // ABCD1234
+```
+
+#### Cipher.decimalEncode(input[, separator]);
+
+Permite codificar un string en decimal.
+
+```javascript
+	var cipher = new Cipher();
+		, input = 'ABCD1234';
+		
+	cipher.decimalEncode(input); // 65 66 67 68 49 50 51 52
+```
+
+```javascript
+	var input = 'ABCD1234';
+		
+	Cipher.decimalEncode(input); // 65 66 67 68 49 50 51 52
+```
+
+#### Cipher.decimalDecode(input[, separator]);
+
+Permite decodificar un string decimal en string.
+
+```javascript
+	var cipher = new Cipher();
+		, input = '65 66 67 68 49 50 51 52';
+		
+	cipher.decimalDecode(input); // ABCD1234
+```
+
+```javascript
+	var input = '65 66 67 68 49 50 51 52';
+		
+	Cipher.decimalDecode(input); // ABCD1234
 ```
 
 #### Cipher.sha1(input);
@@ -225,40 +295,6 @@ Permite codificar y decodificar un string en ROT47.
 	Cipher.rot47(input); // pqrs`abc
 ```
 
-#### Cipher.binary(input);
-
-Permite codificar un string en binario.
-
-```javascript
-	var cipher = new Cipher();
-		, input = 'ABCD1234';
-		
-	cipher.binary(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
-```
-
-```javascript
-	var input = 'ABCD1234';
-		
-	Cipher.binary(input); // 1000001 1000010 1000011 1000100 110001 110010 110011 110100
-```
-
-#### Cipher.decimal(input);
-
-Permite codificar un string en binario.
-
-```javascript
-	var cipher = new Cipher();
-		, input = 'ABCD1234';
-		
-	cipher.decimal(input); // 65 66 67 68 49 50 51 52
-```
-
-```javascript
-	var input = 'ABCD1234';
-		
-	Cipher.decimal(input); // 65 66 67 68 49 50 51 52
-```
-
 
 Licencia
 --------
@@ -278,13 +314,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [cipher_utf8encode]: #cipherutf8encodeinput
 [cipher_base64encode]: #cipherbase64encodeinput
 [cipher_base64decode]: #cipherbase64decodeinput
-[cipher_strtohex]: #cipherstrtohexinputseparator
-[cipher_hextostr]: #cipherhextostrinputseparator
+[cipher_hexaencode]: #cipherhexaencodeinputseparator
+[cipher_hexadecode]: #cipherhexadecodeinputseparator
+[cipher_binaryencode]: #cipherbinaryencodeinputseparator
+[cipher_binarydecode]: #cipherbinarydecodeinputseparator
+[cipher_decimalencode]: #cipherdecimalencodeinputseparator
+[cipher_decimaldecode]: #cipherdecimaldecodeinputseparator
 [cipher_sha1]: #ciphersha1input
 [cipher_md5]: #ciphermd5input
 [cipher_rot5]: #cipherrot5input
 [cipher_rot13]: #cipherrot13input
 [cipher_rot47]: #cipherrot47input
-[cipher_binary]: #cipherbinaryinputseparator
-[cipher_decimal]: #cipherdecimalinputseparator
 [license]: #licencia

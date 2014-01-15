@@ -50,7 +50,7 @@
 			 * Copyright:
 			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
 			 */
-			!function(window){var Cipher=window.Class.create("Cipher",(function(){var Cipher=function(){};Cipher.utf8Encode=function(input){input=input.replace(/\r\n/g,"\n");var utftext="",c,n,l;for(n=0,l=input.length;n<l;n++){c=input.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c)}else{if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128)}else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128)}}}return utftext};Cipher.base64Encode=Base64.encode;Cipher.base64Decode=Base64.decode;Cipher.strToHex=function(input,separator){var a=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);a.push(c.toString(16));if((i+1)<l){a.push(separator)}}return a.join("")};Cipher.hexToStr=function(input,separator){if(separator){input=input.split(separator).join("")}var a=[],i,l,c;for(i=0,l=input.length;i<l;i+=2){c=parseInt(input.substr(i,2),16);if(c){a.push(String.fromCharCode(c))}}return a.join("")};function _md5_rotateLeft(v,sb){return(v<<sb)|(v>>>(32-sb))}function _md5_addUnsigned(x,y){var x4,y4,x8,y8,r;x8=(x&2147483648);y8=(y&2147483648);x4=(x&1073741824);y4=(y&1073741824);r=(x&1073741823)+(y&1073741823);if(x4&y4){return(r^2147483648^x8^y8)}if(x4|y4){if(r&1073741824){return(r^3221225472^x8^y8)}else{return(r^1073741824^x8^y8)}}else{return(r^x8^y8)}}function _md5_F(x,y,z){return(x&y)|((~x)&z)}function _md5_G(x,y,z){return(x&z)|(y&(~z))}function _md5_H(x,y,z){return(x^y^z)}function _md5_I(x,y,z){return(y^(x|(~z)))}function _md5_FF(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_F(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_GG(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_G(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_HH(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_H(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_II(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_I(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_convertToWordArray(input){var c,l=input.length,nwt1=(l+8),nwt2=((nwt1-(nwt1%64))/64),nw=((nwt2+1)*16),a=new Array(nw-1),bp=0,bc=0;while(bc<l){c=(bc-(bc%4))/4;bp=(bc%4)*8;a[c]=(a[c]|(input.charCodeAt(bc)<<bp));bc++}c=(bc-(bc%4))/4;bp=(bc%4)*8;a[c]=a[c]|(128<<bp);a[nw-2]=l<<3;a[nw-1]=l>>>29;return a}function _md5_hex(input){var v="",t="",b,i;for(i=0;i<=3;i++){b=(input>>>(i*8))&255;t="0"+b.toString(16);v+=t.substr(t.length-2,2)}return v}Cipher.md5=function(input){var xl,x=[],k,AA,BB,CC,DD,a,b,c,d,temp,S11=7,S12=12,S13=17,S14=22,S21=5,S22=9,S23=14,S24=20,S31=4,S32=11,S33=16,S34=23,S41=6,S42=10,S43=15,S44=21;input=Cipher.utf8Encode(input);x=_md5_convertToWordArray(input);a=1732584193;b=4023233417;c=2562383102;d=271733878;xl=x.length;for(k=0;k<xl;k+=16){AA=a;BB=b;CC=c;DD=d;a=_md5_FF(a,b,c,d,x[k+0],S11,3614090360);d=_md5_FF(d,a,b,c,x[k+1],S12,3905402710);c=_md5_FF(c,d,a,b,x[k+2],S13,606105819);b=_md5_FF(b,c,d,a,x[k+3],S14,3250441966);a=_md5_FF(a,b,c,d,x[k+4],S11,4118548399);d=_md5_FF(d,a,b,c,x[k+5],S12,1200080426);c=_md5_FF(c,d,a,b,x[k+6],S13,2821735955);b=_md5_FF(b,c,d,a,x[k+7],S14,4249261313);a=_md5_FF(a,b,c,d,x[k+8],S11,1770035416);d=_md5_FF(d,a,b,c,x[k+9],S12,2336552879);c=_md5_FF(c,d,a,b,x[k+10],S13,4294925233);b=_md5_FF(b,c,d,a,x[k+11],S14,2304563134);a=_md5_FF(a,b,c,d,x[k+12],S11,1804603682);d=_md5_FF(d,a,b,c,x[k+13],S12,4254626195);c=_md5_FF(c,d,a,b,x[k+14],S13,2792965006);b=_md5_FF(b,c,d,a,x[k+15],S14,1236535329);a=_md5_GG(a,b,c,d,x[k+1],S21,4129170786);d=_md5_GG(d,a,b,c,x[k+6],S22,3225465664);c=_md5_GG(c,d,a,b,x[k+11],S23,643717713);b=_md5_GG(b,c,d,a,x[k+0],S24,3921069994);a=_md5_GG(a,b,c,d,x[k+5],S21,3593408605);d=_md5_GG(d,a,b,c,x[k+10],S22,38016083);c=_md5_GG(c,d,a,b,x[k+15],S23,3634488961);b=_md5_GG(b,c,d,a,x[k+4],S24,3889429448);a=_md5_GG(a,b,c,d,x[k+9],S21,568446438);d=_md5_GG(d,a,b,c,x[k+14],S22,3275163606);c=_md5_GG(c,d,a,b,x[k+3],S23,4107603335);b=_md5_GG(b,c,d,a,x[k+8],S24,1163531501);a=_md5_GG(a,b,c,d,x[k+13],S21,2850285829);d=_md5_GG(d,a,b,c,x[k+2],S22,4243563512);c=_md5_GG(c,d,a,b,x[k+7],S23,1735328473);b=_md5_GG(b,c,d,a,x[k+12],S24,2368359562);a=_md5_HH(a,b,c,d,x[k+5],S31,4294588738);d=_md5_HH(d,a,b,c,x[k+8],S32,2272392833);c=_md5_HH(c,d,a,b,x[k+11],S33,1839030562);b=_md5_HH(b,c,d,a,x[k+14],S34,4259657740);a=_md5_HH(a,b,c,d,x[k+1],S31,2763975236);d=_md5_HH(d,a,b,c,x[k+4],S32,1272893353);c=_md5_HH(c,d,a,b,x[k+7],S33,4139469664);b=_md5_HH(b,c,d,a,x[k+10],S34,3200236656);a=_md5_HH(a,b,c,d,x[k+13],S31,681279174);d=_md5_HH(d,a,b,c,x[k+0],S32,3936430074);c=_md5_HH(c,d,a,b,x[k+3],S33,3572445317);b=_md5_HH(b,c,d,a,x[k+6],S34,76029189);a=_md5_HH(a,b,c,d,x[k+9],S31,3654602809);d=_md5_HH(d,a,b,c,x[k+12],S32,3873151461);c=_md5_HH(c,d,a,b,x[k+15],S33,530742520);b=_md5_HH(b,c,d,a,x[k+2],S34,3299628645);a=_md5_II(a,b,c,d,x[k+0],S41,4096336452);d=_md5_II(d,a,b,c,x[k+7],S42,1126891415);c=_md5_II(c,d,a,b,x[k+14],S43,2878612391);b=_md5_II(b,c,d,a,x[k+5],S44,4237533241);a=_md5_II(a,b,c,d,x[k+12],S41,1700485571);d=_md5_II(d,a,b,c,x[k+3],S42,2399980690);c=_md5_II(c,d,a,b,x[k+10],S43,4293915773);b=_md5_II(b,c,d,a,x[k+1],S44,2240044497);a=_md5_II(a,b,c,d,x[k+8],S41,1873313359);d=_md5_II(d,a,b,c,x[k+15],S42,4264355552);c=_md5_II(c,d,a,b,x[k+6],S43,2734768916);b=_md5_II(b,c,d,a,x[k+13],S44,1309151649);a=_md5_II(a,b,c,d,x[k+4],S41,4149444226);d=_md5_II(d,a,b,c,x[k+11],S42,3174756917);c=_md5_II(c,d,a,b,x[k+2],S43,718787259);b=_md5_II(b,c,d,a,x[k+9],S44,3951481745);a=_md5_addUnsigned(a,AA);b=_md5_addUnsigned(b,BB);c=_md5_addUnsigned(c,CC);d=_md5_addUnsigned(d,DD)}temp=_md5_hex(a)+_md5_hex(b)+_md5_hex(c)+_md5_hex(d);return temp.toLowerCase()};function _sha1_rotate(n,s){var t4=(n<<s)|(n>>>(32-s));return t4}function _sha1_hex(input){var str="",v,i;for(i=7;i>=0;i--){v=(input>>>(i*4))&15;str+=v.toString(16)}return str}Cipher.sha1=function(input){var bs,i,l,j,W=[],wa=[],H0=1732584193,H1=4023233417,H2=2562383102,H3=271733878,H4=3285377520,A,B,C,D,E,temp;input=Cipher.utf8Encode(input);l=input.length;for(i=0;i<l-3;i+=4){j=input.charCodeAt(i)<<24|input.charCodeAt(i+1)<<16|input.charCodeAt(i+2)<<8|input.charCodeAt(i+3);wa.push(j)}switch(l%4){case 0:i=2147483648;break;case 1:i=input.charCodeAt(l-1)<<24|8388608;break;case 2:i=input.charCodeAt(l-2)<<24|input.charCodeAt(l-1)<<16|32768;break;case 3:i=input.charCodeAt(l-3)<<24|input.charCodeAt(l-2)<<16|input.charCodeAt(l-1)<<8|128;break}wa.push(i);while((wa.length%16)!=14){wa.push(0)}wa.push(l>>>29);wa.push((l<<3)&4294967295);for(bs=0;bs<wa.length;bs+=16){for(i=0;i<16;i++){W[i]=wa[bs+i]}for(i=16;i<=79;i++){W[i]=_sha1_rotate(W[i-3]^W[i-8]^W[i-14]^W[i-16],1)}A=H0;B=H1;C=H2;D=H3;E=H4;for(i=0;i<=19;i++){temp=(_sha1_rotate(A,5)+((B&C)|(~B&D))+E+W[i]+1518500249)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=20;i<=39;i++){temp=(_sha1_rotate(A,5)+(B^C^D)+E+W[i]+1859775393)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=40;i<=59;i++){temp=(_sha1_rotate(A,5)+((B&C)|(B&D)|(C&D))+E+W[i]+2400959708)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=60;i<=79;i++){temp=(_sha1_rotate(A,5)+(B^C^D)+E+W[i]+3395469782)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}H0=(H0+A)&4294967295;H1=(H1+B)&4294967295;H2=(H2+C)&4294967295;H3=(H3+D)&4294967295;H4=(H4+E)&4294967295}temp=_sha1_hex(H0)+_sha1_hex(H1)+_sha1_hex(H2)+_sha1_hex(H3)+_sha1_hex(H4);return temp.toLowerCase()};Cipher.rot5=function(input){var s=[],i,l,c;for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);if((c>=48)&&(c<=57)){if(c<=52){s.push(String.fromCharCode(c+5))}else{s.push(String.fromCharCode(c-5))}}else{s.push(String.fromCharCode(c))}}return s.join("")};Cipher.rot13=function(input){return input.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)})};Cipher.rot47=function(input){var s=[],i,l,c;for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);if((c>=33)&&(c<=126)){s.push(String.fromCharCode(33+((c+14)%94)))}else{s.push(String.fromCharCode(c))}}return s.join("")};Cipher.binary=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input[i].charCodeAt(0);s.push(c.toString(2));if((i+1)<l){s.push(separator)}}return s.join("")};Cipher.decimal=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);s.push(c);if((i+1)<l){s.push(separator)}}return s.join("")};return{constructor:Cipher,utf8Encode:Cipher.utf8Encode,base64Encode:Cipher.base64Encode,base64Decode:Cipher.base64Decode,strToHex:Cipher.strToHex,hexToStr:Cipher.hexToStr,sha1:Cipher.sha1,md5:Cipher.md5,rot5:Cipher.rot5,rot13:Cipher.rot13,rot47:Cipher.rot47,binary:Cipher.binary,decimal:Cipher.decimal}})());window.Cipher=Cipher}(window);
+			!function(window){var Cipher=window.Class.create("Cipher",(function(){var Cipher=function(){};Cipher.utf8Encode=function(input){input=input.replace(/\r\n/g,"\n");var utftext="",c,n,l;for(n=0,l=input.length;n<l;n++){c=input.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c)}else{if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128)}else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128)}}}return utftext};Cipher.base64Encode=Base64.encode;Cipher.base64Decode=Base64.decode;Cipher.hexaEncode=function(input,separator){var a=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);a.push(c.toString(16));if((i+1)<l){a.push(separator)}}return a.join("")};Cipher.hexaDecode=function(input,separator){if(separator){input=input.split(separator).join("")}var a=[],i,l,c;for(i=0,l=input.length;i<l;i+=2){c=parseInt(input.substr(i,2),16);if(c){a.push(String.fromCharCode(c))}}return a.join("")};Cipher.binaryEncode=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input[i].charCodeAt(0);s.push(c.toString(2));if((i+1)<l){s.push(separator)}}return s.join("")};Cipher.binaryDecode=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);input=input.split(separator);for(i=0,l=input.length;i<l;i++){c=parseInt(input[i],2);s.push(String.fromCharCode(c))}return s.join("")};Cipher.decimalEncode=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);s.push(c);if((i+1)<l){s.push(separator)}}return s.join("")};Cipher.decimalDecode=function(input,separator){var s=[],i,l,c;separator=(typeof separator==="undefined"?" ":separator);input=input.split(separator);for(i=0,l=input.length;i<l;i++){c=input[i];s.push(String.fromCharCode(c))}return s.join("")};function _md5_rotateLeft(v,sb){return(v<<sb)|(v>>>(32-sb))}function _md5_addUnsigned(x,y){var x4,y4,x8,y8,r;x8=(x&2147483648);y8=(y&2147483648);x4=(x&1073741824);y4=(y&1073741824);r=(x&1073741823)+(y&1073741823);if(x4&y4){return(r^2147483648^x8^y8)}if(x4|y4){if(r&1073741824){return(r^3221225472^x8^y8)}else{return(r^1073741824^x8^y8)}}else{return(r^x8^y8)}}function _md5_F(x,y,z){return(x&y)|((~x)&z)}function _md5_G(x,y,z){return(x&z)|(y&(~z))}function _md5_H(x,y,z){return(x^y^z)}function _md5_I(x,y,z){return(y^(x|(~z)))}function _md5_FF(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_F(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_GG(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_G(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_HH(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_H(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_II(a,b,c,d,x,s,ac){a=_md5_addUnsigned(a,_md5_addUnsigned(_md5_addUnsigned(_md5_I(b,c,d),x),ac));return _md5_addUnsigned(_md5_rotateLeft(a,s),b)}function _md5_convertToWordArray(input){var c,l=input.length,nwt1=(l+8),nwt2=((nwt1-(nwt1%64))/64),nw=((nwt2+1)*16),a=new Array(nw-1),bp=0,bc=0;while(bc<l){c=(bc-(bc%4))/4;bp=(bc%4)*8;a[c]=(a[c]|(input.charCodeAt(bc)<<bp));bc++}c=(bc-(bc%4))/4;bp=(bc%4)*8;a[c]=a[c]|(128<<bp);a[nw-2]=l<<3;a[nw-1]=l>>>29;return a}function _md5_hex(input){var v="",t="",b,i;for(i=0;i<=3;i++){b=(input>>>(i*8))&255;t="0"+b.toString(16);v+=t.substr(t.length-2,2)}return v}Cipher.md5=function(input){var xl,x=[],k,AA,BB,CC,DD,a,b,c,d,temp,S11=7,S12=12,S13=17,S14=22,S21=5,S22=9,S23=14,S24=20,S31=4,S32=11,S33=16,S34=23,S41=6,S42=10,S43=15,S44=21;input=Cipher.utf8Encode(input);x=_md5_convertToWordArray(input);a=1732584193;b=4023233417;c=2562383102;d=271733878;xl=x.length;for(k=0;k<xl;k+=16){AA=a;BB=b;CC=c;DD=d;a=_md5_FF(a,b,c,d,x[k+0],S11,3614090360);d=_md5_FF(d,a,b,c,x[k+1],S12,3905402710);c=_md5_FF(c,d,a,b,x[k+2],S13,606105819);b=_md5_FF(b,c,d,a,x[k+3],S14,3250441966);a=_md5_FF(a,b,c,d,x[k+4],S11,4118548399);d=_md5_FF(d,a,b,c,x[k+5],S12,1200080426);c=_md5_FF(c,d,a,b,x[k+6],S13,2821735955);b=_md5_FF(b,c,d,a,x[k+7],S14,4249261313);a=_md5_FF(a,b,c,d,x[k+8],S11,1770035416);d=_md5_FF(d,a,b,c,x[k+9],S12,2336552879);c=_md5_FF(c,d,a,b,x[k+10],S13,4294925233);b=_md5_FF(b,c,d,a,x[k+11],S14,2304563134);a=_md5_FF(a,b,c,d,x[k+12],S11,1804603682);d=_md5_FF(d,a,b,c,x[k+13],S12,4254626195);c=_md5_FF(c,d,a,b,x[k+14],S13,2792965006);b=_md5_FF(b,c,d,a,x[k+15],S14,1236535329);a=_md5_GG(a,b,c,d,x[k+1],S21,4129170786);d=_md5_GG(d,a,b,c,x[k+6],S22,3225465664);c=_md5_GG(c,d,a,b,x[k+11],S23,643717713);b=_md5_GG(b,c,d,a,x[k+0],S24,3921069994);a=_md5_GG(a,b,c,d,x[k+5],S21,3593408605);d=_md5_GG(d,a,b,c,x[k+10],S22,38016083);c=_md5_GG(c,d,a,b,x[k+15],S23,3634488961);b=_md5_GG(b,c,d,a,x[k+4],S24,3889429448);a=_md5_GG(a,b,c,d,x[k+9],S21,568446438);d=_md5_GG(d,a,b,c,x[k+14],S22,3275163606);c=_md5_GG(c,d,a,b,x[k+3],S23,4107603335);b=_md5_GG(b,c,d,a,x[k+8],S24,1163531501);a=_md5_GG(a,b,c,d,x[k+13],S21,2850285829);d=_md5_GG(d,a,b,c,x[k+2],S22,4243563512);c=_md5_GG(c,d,a,b,x[k+7],S23,1735328473);b=_md5_GG(b,c,d,a,x[k+12],S24,2368359562);a=_md5_HH(a,b,c,d,x[k+5],S31,4294588738);d=_md5_HH(d,a,b,c,x[k+8],S32,2272392833);c=_md5_HH(c,d,a,b,x[k+11],S33,1839030562);b=_md5_HH(b,c,d,a,x[k+14],S34,4259657740);a=_md5_HH(a,b,c,d,x[k+1],S31,2763975236);d=_md5_HH(d,a,b,c,x[k+4],S32,1272893353);c=_md5_HH(c,d,a,b,x[k+7],S33,4139469664);b=_md5_HH(b,c,d,a,x[k+10],S34,3200236656);a=_md5_HH(a,b,c,d,x[k+13],S31,681279174);d=_md5_HH(d,a,b,c,x[k+0],S32,3936430074);c=_md5_HH(c,d,a,b,x[k+3],S33,3572445317);b=_md5_HH(b,c,d,a,x[k+6],S34,76029189);a=_md5_HH(a,b,c,d,x[k+9],S31,3654602809);d=_md5_HH(d,a,b,c,x[k+12],S32,3873151461);c=_md5_HH(c,d,a,b,x[k+15],S33,530742520);b=_md5_HH(b,c,d,a,x[k+2],S34,3299628645);a=_md5_II(a,b,c,d,x[k+0],S41,4096336452);d=_md5_II(d,a,b,c,x[k+7],S42,1126891415);c=_md5_II(c,d,a,b,x[k+14],S43,2878612391);b=_md5_II(b,c,d,a,x[k+5],S44,4237533241);a=_md5_II(a,b,c,d,x[k+12],S41,1700485571);d=_md5_II(d,a,b,c,x[k+3],S42,2399980690);c=_md5_II(c,d,a,b,x[k+10],S43,4293915773);b=_md5_II(b,c,d,a,x[k+1],S44,2240044497);a=_md5_II(a,b,c,d,x[k+8],S41,1873313359);d=_md5_II(d,a,b,c,x[k+15],S42,4264355552);c=_md5_II(c,d,a,b,x[k+6],S43,2734768916);b=_md5_II(b,c,d,a,x[k+13],S44,1309151649);a=_md5_II(a,b,c,d,x[k+4],S41,4149444226);d=_md5_II(d,a,b,c,x[k+11],S42,3174756917);c=_md5_II(c,d,a,b,x[k+2],S43,718787259);b=_md5_II(b,c,d,a,x[k+9],S44,3951481745);a=_md5_addUnsigned(a,AA);b=_md5_addUnsigned(b,BB);c=_md5_addUnsigned(c,CC);d=_md5_addUnsigned(d,DD)}temp=_md5_hex(a)+_md5_hex(b)+_md5_hex(c)+_md5_hex(d);return temp.toLowerCase()};function _sha1_rotate(n,s){var t4=(n<<s)|(n>>>(32-s));return t4}function _sha1_hex(input){var str="",v,i;for(i=7;i>=0;i--){v=(input>>>(i*4))&15;str+=v.toString(16)}return str}Cipher.sha1=function(input){var bs,i,l,j,W=[],wa=[],H0=1732584193,H1=4023233417,H2=2562383102,H3=271733878,H4=3285377520,A,B,C,D,E,temp;input=Cipher.utf8Encode(input);l=input.length;for(i=0;i<l-3;i+=4){j=input.charCodeAt(i)<<24|input.charCodeAt(i+1)<<16|input.charCodeAt(i+2)<<8|input.charCodeAt(i+3);wa.push(j)}switch(l%4){case 0:i=2147483648;break;case 1:i=input.charCodeAt(l-1)<<24|8388608;break;case 2:i=input.charCodeAt(l-2)<<24|input.charCodeAt(l-1)<<16|32768;break;case 3:i=input.charCodeAt(l-3)<<24|input.charCodeAt(l-2)<<16|input.charCodeAt(l-1)<<8|128;break}wa.push(i);while((wa.length%16)!=14){wa.push(0)}wa.push(l>>>29);wa.push((l<<3)&4294967295);for(bs=0;bs<wa.length;bs+=16){for(i=0;i<16;i++){W[i]=wa[bs+i]}for(i=16;i<=79;i++){W[i]=_sha1_rotate(W[i-3]^W[i-8]^W[i-14]^W[i-16],1)}A=H0;B=H1;C=H2;D=H3;E=H4;for(i=0;i<=19;i++){temp=(_sha1_rotate(A,5)+((B&C)|(~B&D))+E+W[i]+1518500249)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=20;i<=39;i++){temp=(_sha1_rotate(A,5)+(B^C^D)+E+W[i]+1859775393)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=40;i<=59;i++){temp=(_sha1_rotate(A,5)+((B&C)|(B&D)|(C&D))+E+W[i]+2400959708)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}for(i=60;i<=79;i++){temp=(_sha1_rotate(A,5)+(B^C^D)+E+W[i]+3395469782)&4294967295;E=D;D=C;C=_sha1_rotate(B,30);B=A;A=temp}H0=(H0+A)&4294967295;H1=(H1+B)&4294967295;H2=(H2+C)&4294967295;H3=(H3+D)&4294967295;H4=(H4+E)&4294967295}temp=_sha1_hex(H0)+_sha1_hex(H1)+_sha1_hex(H2)+_sha1_hex(H3)+_sha1_hex(H4);return temp.toLowerCase()};Cipher.rot5=function(input){var s=[],i,l,c;for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);if((c>=48)&&(c<=57)){if(c<=52){s.push(String.fromCharCode(c+5))}else{s.push(String.fromCharCode(c-5))}}else{s.push(String.fromCharCode(c))}}return s.join("")};Cipher.rot13=function(input){return input.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)})};Cipher.rot47=function(input){var s=[],i,l,c;for(i=0,l=input.length;i<l;i++){c=input.charCodeAt(i);if((c>=33)&&(c<=126)){s.push(String.fromCharCode(33+((c+14)%94)))}else{s.push(String.fromCharCode(c))}}return s.join("")};return{constructor:Cipher,utf8Encode:Cipher.utf8Encode,base64Encode:Cipher.base64Encode,base64Decode:Cipher.base64Decode,hexaEncode:Cipher.hexaEncode,hexaDecode:Cipher.hexaDecode,binaryEncode:Cipher.binaryEncode,binaryDecode:Cipher.binaryDecode,decimalEncode:Cipher.decimalEncode,decimalDecode:Cipher.decimalDecode,sha1:Cipher.sha1,md5:Cipher.md5,rot5:Cipher.rot5,rot13:Cipher.rot13,rot47:Cipher.rot47}})());window.Cipher=Cipher}(window);
 			
 		</script>
 		
@@ -93,22 +93,66 @@
 				//#########################################################
 				//#########################################################
 				
-				test('Cipher.strToHex with text "ABCD1234" expected result "41 42 43 44 31 32 33 34"', function() {
+				test('Cipher.hexaEncode with text "ABCD1234" expected result "41 42 43 44 31 32 33 34"', function() {
 					var input = "ABCD1234"
 						, expected = "41 42 43 44 31 32 33 34"
-						, result = Cipher.strToHex(input);
-          equal( result, expected, ['Cipher.strToHex("', input, '"), "', result, '"; equal succeeds!'].join('') );
+						, result = Cipher.hexaEncode(input);
+          equal( result, expected, ['Cipher.hexaEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
 				});
 
 				//#########################################################
 				//#########################################################
 				//#########################################################
 				
-				test('Cipher.hexToStr with text "4142434431323334" expected result "ABCD1234"', function() {
+				test('Cipher.hexaDecode with text "4142434431323334" expected result "ABCD1234"', function() {
 					var input = "4142434431323334"
 						, expected = "ABCD1234"
-						, result = Cipher.hexToStr(input);
-          equal( result, expected, ['Cipher.hexToStr("', input, '"), "', result, '"; equal succeeds!'].join('') );
+						, result = Cipher.hexaDecode(input);
+          equal( result, expected, ['Cipher.hexaDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Cipher.binaryEncode with text "ABCD1234" expected result "1000001 1000010 1000011 1000100 110001 110010 110011 110100"', function() {
+					var input = "ABCD1234"
+						, expected = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
+						, result = Cipher.binaryEncode(input);
+          equal( result, expected, ['Cipher.binaryEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Cipher.binaryDecode with text "1000001 1000010 1000011 1000100 110001 110010 110011 110100" expected result "ABCD1234"', function() {
+					var input = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
+						, expected = "ABCD1234"
+						, result = Cipher.binaryDecode(input);
+          equal( result, expected, ['Cipher.binaryDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Cipher.decimalEncode with text "ABCD1234" expected result "65 66 67 68 49 50 51 52"', function() {
+					var input = "ABCD1234"
+						, expected = "65 66 67 68 49 50 51 52"
+						, result = Cipher.decimalEncode(input);
+          equal( result, expected, ['Cipher.decimalEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('Cipher.decimalDecode with text "65 66 67 68 49 50 51 52" expected result "ABCD1234"', function() {
+					var input = "65 66 67 68 49 50 51 52"
+						, expected = "ABCD1234"
+						, result = Cipher.decimalDecode(input);
+          equal( result, expected, ['Cipher.decimalDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
 				});
 
 				//#########################################################
@@ -169,28 +213,6 @@
 				//#########################################################
 				//#########################################################
 				//#########################################################
-				
-				test('Cipher.binary with text "ABCD1234" expected result "1000001 1000010 1000011 1000100 110001 110010 110011 110100"', function() {
-					var input = "ABCD1234"
-						, expected = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
-						, result = Cipher.binary(input);
-          equal( result, expected, ['Cipher.binary("', input, '"), "', result, '"; equal succeeds!'].join('') );
-				});
-
-				//#########################################################
-				//#########################################################
-				//#########################################################
-				
-				test('Cipher.decimal with text "ABCD1234" expected result "65 66 67 68 49 50 51 52"', function() {
-					var input = "ABCD1234"
-						, expected = "65 66 67 68 49 50 51 52"
-						, result = Cipher.decimal(input);
-          equal( result, expected, ['Cipher.decimal("', input, '"), "', result, '"; equal succeeds!'].join('') );
-				});
-
-				//#########################################################
-				//#########################################################
-				//#########################################################
 				//#########################################################
 				//#########################################################
 				//#########################################################
@@ -235,22 +257,66 @@
 				//#########################################################
 				//#########################################################
 				
-				test('cipher.strToHex with text "ABCD1234" expected result "41 42 43 44 31 32 33 34"', function() {
+				test('cipher.hexaEncode with text "ABCD1234" expected result "41 42 43 44 31 32 33 34"', function() {
 					var input = "ABCD1234"
 						, expected = "41 42 43 44 31 32 33 34"
-						, result = cipher.strToHex(input);
-          equal( result, expected, ['cipher.strToHex("', input, '"), "', result, '"; equal succeeds!'].join('') );
+						, result = cipher.hexaEncode(input);
+          equal( result, expected, ['cipher.hexaEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
 				});
 
 				//#########################################################
 				//#########################################################
 				//#########################################################
 				
-				test('cipher.hexToStr with text "4142434431323334" expected result "ABCD1234"', function() {
+				test('cipher.hexaDecode with text "4142434431323334" expected result "ABCD1234"', function() {
 					var input = "4142434431323334"
 						, expected = "ABCD1234"
-						, result = cipher.hexToStr(input);
-          equal( result, expected, ['cipher.hexToStr("', input, '"), "', result, '"; equal succeeds!'].join('') );
+						, result = cipher.hexaDecode(input);
+          equal( result, expected, ['cipher.hexaDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('cipher.binaryEncode with text "ABCD1234" expected result "1000001 1000010 1000011 1000100 110001 110010 110011 110100"', function() {
+					var input = "ABCD1234"
+						, expected = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
+						, result = cipher.binaryEncode(input);
+          equal( result, expected, ['cipher.binaryEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('cipher.binaryDecode with text "1000001 1000010 1000011 1000100 110001 110010 110011 110100" expected result "ABCD1234"', function() {
+					var input = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
+						, expected = "ABCD1234"
+						, result = cipher.binaryDecode(input);
+          equal( result, expected, ['cipher.binaryDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('cipher.decimalEncode with text "ABCD1234" expected result "65 66 67 68 49 50 51 52"', function() {
+					var input = "ABCD1234"
+						, expected = "65 66 67 68 49 50 51 52"
+						, result = cipher.decimalEncode(input);
+          equal( result, expected, ['cipher.decimalEncode("', input, '"), "', result, '"; equal succeeds!'].join('') );
+				});
+
+				//#########################################################
+				//#########################################################
+				//#########################################################
+				
+				test('cipher.decimalDecode with text "65 66 67 68 49 50 51 52" expected result "ABCD1234"', function() {
+					var input = "65 66 67 68 49 50 51 52"
+						, expected = "ABCD1234"
+						, result = cipher.decimalDecode(input);
+          equal( result, expected, ['cipher.decimalDecode("', input, '"), "', result, '"; equal succeeds!'].join('') );
 				});
 
 				//#########################################################
@@ -306,28 +372,6 @@
 						, expected = "pqrs`abc"
 						, result = cipher.rot47(input);
           equal( result, expected, ['cipher.rot47("', input, '"), "', result, '"; equal succeeds!'].join('') );
-				});
-
-				//#########################################################
-				//#########################################################
-				//#########################################################
-				
-				test('cipher.binary with text "ABCD1234" expected result "1000001 1000010 1000011 1000100 110001 110010 110011 110100"', function() {
-					var input = "ABCD1234"
-						, expected = "1000001 1000010 1000011 1000100 110001 110010 110011 110100"
-						, result = cipher.binary(input);
-          equal( result, expected, ['cipher.binary("', input, '"), "', result, '"; equal succeeds!'].join('') );
-				});
-
-				//#########################################################
-				//#########################################################
-				//#########################################################
-				
-				test('cipher.decimal with text "ABCD1234" expected result "65 66 67 68 49 50 51 52"', function() {
-					var input = "ABCD1234"
-						, expected = "65 66 67 68 49 50 51 52"
-						, result = cipher.decimal(input);
-          equal( result, expected, ['cipher.decimal("', input, '"), "', result, '"; equal succeeds!'].join('') );
 				});
 				
 			});

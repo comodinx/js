@@ -50,8 +50,8 @@
 		// Base64 decode
     Cipher.base64Decode = Base64.decode;
 		
-		// String to Hex
-		Cipher.strToHex = function (input, separator) {
+		// Hexa encode
+		Cipher.hexaEncode = function (input, separator) {
 			var a = []
 				, i, l, c;
 			separator = (typeof separator === 'undefined' ? " " : separator);
@@ -63,10 +63,10 @@
 				}
 			}
 			return a.join('');
-		}
+		};
 		
-		// Hex to String
-		Cipher.hexToStr = function (input, separator) {
+		// Hexa decode
+		Cipher.hexaDecode = function (input, separator) {
 			if (separator) {
 				input = input.split(separator).join('');
 			}
@@ -80,7 +80,63 @@
           }
       }
 			return a.join('');
-		}
+		};
+		
+		// Binary encode
+		Cipher.binaryEncode = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			for (i = 0, l = input.length; i < l; i++) {
+				c = input[i].charCodeAt(0);
+				s.push(c.toString(2));
+				if ((i+1) < l) {
+					s.push(separator);
+				}
+			}
+			return s.join('');
+		};
+		
+		// Binary decode
+		Cipher.binaryDecode = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			input = input.split(separator);
+			for (i = 0, l = input.length; i < l; i++) {
+				c = parseInt(input[i], 2);
+				s.push(String.fromCharCode(c));
+			}
+			return s.join('');
+		};
+		
+		// Decimal encode
+		Cipher.decimalEncode = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			for(i = 0, l = input.length; i < l; i++) {
+				c = input.charCodeAt(i);
+				s.push(c);
+				if ((i+1) < l) {
+					s.push(separator);
+				}
+			}
+			return s.join('');
+		};
+		
+		// Decimal decode
+		Cipher.decimalDecode = function (input, separator) {
+			var s = []
+				, i, l, c;
+			separator = (typeof separator === 'undefined' ? " " : separator);
+			input = input.split(separator);
+			for(i = 0, l = input.length; i < l; i++) {
+				c = input[i];
+				s.push(String.fromCharCode(c));
+			}
+			return s.join('');
+		};
 
 		// MD5
 		function _md5_rotateLeft(v, sb) {
@@ -453,51 +509,23 @@
 			}
 			return s.join('');
 		};
-		
-		// Binary
-		Cipher.binary = function (input, separator) {
-			var s = []
-				, i, l, c;
-			separator = (typeof separator === 'undefined' ? " " : separator);
-			for (i = 0, l = input.length; i < l; i++) {
-				c = input[i].charCodeAt(0);
-				s.push(c.toString(2));
-				if ((i+1) < l) {
-					s.push(separator);
-				}
-			}
-			return s.join('');
-		};
-		
-		// Decimal
-		Cipher.decimal = function (input, separator) {
-			var s = []
-				, i, l, c;
-			separator = (typeof separator === 'undefined' ? " " : separator);
-			for(i = 0, l = input.length; i < l; i++) {
-				c = input.charCodeAt(i);
-				s.push(c);
-				if ((i+1) < l) {
-					s.push(separator);
-				}
-			}
-			return s.join('');
-		};
 
 		return {
 			constructor: Cipher,
 			utf8Encode: Cipher.utf8Encode,
 			base64Encode: Cipher.base64Encode,
 			base64Decode: Cipher.base64Decode,
-			strToHex: Cipher.strToHex,
-      hexToStr: Cipher.hexToStr,
+			hexaEncode: Cipher.hexaEncode,
+      hexaDecode: Cipher.hexaDecode,
+			binaryEncode: Cipher.binaryEncode,
+			binaryDecode: Cipher.binaryDecode,
+			decimalEncode: Cipher.decimalEncode,
+			decimalDecode: Cipher.decimalDecode,
 			sha1: Cipher.sha1,
 			md5: Cipher.md5,
 			rot5: Cipher.rot5,
 			rot13: Cipher.rot13,
-			rot47: Cipher.rot47,
-			binary: Cipher.binary,
-			decimal: Cipher.decimal
+			rot47: Cipher.rot47
 		};
 	})());
 	
