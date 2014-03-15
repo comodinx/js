@@ -30,7 +30,7 @@ CX Timer consta de cx-class.js y cx-timer.js.
       console.log('Finalize TimerExec');
       te.stop();
     }
-    console.log('TimerExec [' + count++ + ']');
+    console.log('TimerExec [' + (count++) + ']');
   });
 ```
 
