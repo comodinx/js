@@ -21,16 +21,14 @@ CX Timer consta de cx-class.js y cx-timer.js.
 ¿Como se utiliza?
 -----------------
 
-#### Utilizar una instancia
-
-Ejecución periodica.
+#### Ejecución periodica.
 
 ```javascript
   var count = 0;
-	new TimerExec(function(te) {
+  new TimerExec(function(te) {
     if (count == 3) {
-		  console.log('Finalize TimerExec');
-			te.stop();
+      console.log('Finalize TimerExec');
+      te.stop();
     }
     console.log('TimerExec [' + count++ + ']');
   });
@@ -52,6 +50,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 <!-- deep links -->
 [introduction]: #introduccin
 [getting_started]: #como-se-utiliza
-[periodical_executor]: #ejecucin-periodica
+[periodical_executor]: #ejecuci%C3%B3n-periodica
 [object_base64]: #utilizar-directamente-el-objeto-base64
 [license]: #licencia
