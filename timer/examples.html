@@ -1,0 +1,576 @@
+ <html>
+	<head>
+		<title>CX Timer Examples</title>
+    
+		<link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.min.css">
+		
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		
+		<script type="text/javascript" >
+			/**
+			 * CX Class - Version 1.1
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 */
+			!function(b){var c=(function(){var e;for(e in {toString:1}){return false;}return true;})(),a=(c?"hasOwnProperty valueOf isPrototypeOf propertyIsEnumerable toLocaleString toString constructor".split(" "):[]),d=Object.prototype.toString;b.Class=(function(){var f={inherited:e,toString:k};function j(l){tempKlass=new Function;tempKlass.prototype=l.prototype;var m=new tempKlass;tempKlass.prototype=null;return m;}function g(n,l,m){if((m!==Object.prototype[l]||!(l in Object.prototype))&&l!="constructor"){if(d.call(m)=="[object Function]"){m.declareMethod=l;}n[l]=m;}}function h(p,m,n){var o=m,l;if(d.call(m)=="[object String]"){o={};o[m]=n;}for(m in o){g(p,m,o[m]);}if(c){for(l=a,i=l.length;i;){m=l[--i];g(p,m,o[m]);}}}function e(){var n=arguments[0],m=this._inherited=this._inherited||{c:this.constructor},o,p,l;if(m.c==Object){m.c=this.constructor;}if(n.callee.declareMethod){o=false;p=n.callee.declareMethod;m.c=this.constructor;do{m.c=m.c._meta.superclass;if(m.c.prototype[p]){o=true;}}while(m.c._meta&&!o);if(o){l=m.c.prototype[p].apply(this,n);}return l;}else{m.c=m.c._meta.superclass;return m.c.apply(this,n);}}function k(){return["Class<",this.declareClass,">"].join("");}return{create:function(m,p,n){if(typeof p!=="function"){n=p;p=Object;}var o=j(p),l;if(!n.constructor){n.constructor=Function;}l=n.constructor;h(o,f);o.declareClass=m;o.constructor=l;h(o,n);l.prototype=o;l._meta={superclass:p};return l;},addMethods:function(l,m){h(f,l,m);},type:function(l){if(l.declareClass){return k.call(l);}return d.call(l);}};})();}(window);
+			
+			/**
+			 * CX Logger - Version 1.0
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 */
+			!function(b){function a(c){return typeof c==="undefined";}b.Logger=b.Class.create("Logger",(function(){var d=function(h){h=(h||{});if(typeof h==="string"){h={name:h};}this._name=(h.name||"Log");this._separator=(h.separator||" - ");this._level=(h.level||d.DEBUG);this._handler=(h.handler||d.CONSOLE);this._showDate=(!a(h.date)?h.date:true);};d.CONSOLE=function(h){b.console.log(h);};d.ALERT=function(h){alert(h);};d.TRACE=-1;d.DEBUG=0;d.INFO=1;d.WARN=2;d.ERROR=3;d.FATAL=4;function c(n,q,m){if(a(n)){return;}if(a(m)||m.length==0){m=" ";}n=n.toString();if((q-n.length)<=0){return n;}var l=m.length,h=n.length,j=q-h,p,o,k;if(j==l){return m.concat(n);}else{if(j<l){return m.substring(0,j).concat(n);}else{p=[];o=m.split();for(k=0;k<j;k++){p.push(o[k%l]);}return p.join("").concat(n);}}}function g(j){var h=[],i;if(j._showDate){i=new Date();h.push(i.getFullYear());h.push("-");h.push(c(i.getMonth(),2,"0"));h.push("-");h.push(c(i.getDate(),2,"0"));h.push(" ");h.push(c(i.getHours(),2,"0"));h.push(":");h.push(c(i.getMinutes(),2,"0"));h.push(":");h.push(c(i.getSeconds(),2,"0"));h.push(",");h.push(i.getMilliseconds());h.push(" ");}return h.join("");}function e(j,i){var h=[],k;if(i){if(i.stack){k=i.stack;}else{if(i.message){k=i.message;}else{k=i.toString();}}}if(k){h.push(j._separator);h.push("\n");h.push(k);}return h.join("");}function f(k,j,l,i){var m=d[j],h;if(!a(m)&&k._level<=m){h=[];h.push(g(k));h.push("[");h.push(j);h.push("] ");h.push(k._name);h.push(k._separator);h.push((l||""));h.push(e(k,i));k._handler(h.join(""),j);}}return{constructor:d,trace:function(i,h){return f(this,"TRACE",i,h);},debug:function(i,h){return f(this,"DEBUG",i,h);},info:function(i,h){return f(this,"INFO",i,h);},warn:function(i,h){return f(this,"WARN",i,h);},error:function(i,h){return f(this,"ERROR",i,h);},fatal:function(i,h){return f(this,"FATAL",i,h);},isTraceEnabled:function(){return this._level<=d.TRACE;},isDebugEnabled:function(){return this._level<=d.DEBUG;},isInfoEnabled:function(){return this._level<=d.INFO;},isWarnEnabled:function(){return this._level<=d.WARN;},isErrorEnabled:function(){return this._level<=d.ERROR;},isFatalEnabled:function(){return this._level<=d.FATAL;}};})());}(window);
+			
+			/**
+			 * CX Timer - Version 1.0
+			 * 
+			 * License:
+			 * 	MIT license. 
+			 * 
+			 * Copyright:
+			 * 	Copyright (c) 2013 - 2013 [Nicolas Molina - Comodinx] (http://opensource.org/licenses/mit-license.php)
+			 */
+			!function(f){function e(h){return h.charAt(0).toUpperCase()+h.substring(1).toLowerCase();}function g(j,i){var h;for(h in i){j[h]=i[h];}return j;}function c(k){var j,h;for(j=1,h=arguments.length;j<h;j++){g(k,arguments[j]);}return k;}var d=f.Class.create("TimerPool",(function(){function m(y,z){for(var x=0,w=y.length;x<w;){if(z.call(y[x],x,y[x++])===false){break;}}}function p(x,y){var w,z;m(y,function(A,B){if(typeof B==="function"){z=B;}else{z=B.callback;w=B.options;}x.add(z,w);});}var n=function(w,x){if(Object.prototype.toString(w)==="[object Array]"){x=w;w={};}this.options=c({},l,(w||{}));this._timers=[];this._timerIdCount=0;this.state=b.states.UNSTARTED;p(this,(x||this._timers));},l={interval:1000,onChangeState:false,stopOnError:true,autoStart:false};function v(z,w){var x=c({},this.options,(w||{})),y=new b(z,x);this._timers.push(y);if(!y.timer_id){y.timer_id=("TimerTask-"+(++this._timerIdCount));}if(this.state==b.states.RUNNING){y.start();}return y;}function k(w){if(isNaN(w)){w=this.indexOf(w);}if(w<0||w>this._timers.length-1){return;}var x=this._timers.splice(w,1);x[0].stop();delete x[0];}function o(){this.stop();var x,w;for(x=0;x<this.length();){this.remove(x);}}function r(y){var x,w;for(x=0,w=this.length();x<w;x++){if(this._timers[x].timer_id==y){return x;}}return -1;}function j(){return this._timers.length;}function i(w){this.state=b.states.RUNNING;m(this._timers,function(x,y){y.start(w);});return this;}function q(w){w=(w||b.states.STOPPED);this.state=w;m(this._timers,function(x,y){y.stop(w);});return this;}function t(w){this.stop();this.start(w);return this;}function u(){this.stop(b.states.CANCELED);return this;}function h(){this.stop(b.states.COMPLETE);return this;}function s(w){m(this._timers,function(x,y){y.setTime(w);});return this;}return{constructor:n,add:v,remove:k,clean:o,indexOf:r,length:j,start:i,stop:q,sleep:t,cancel:u,complete:h,setTime:s};})()),b=f.Class.create("TimerTask",(function(){var h=function(s,r){r=(r||{});this.callback=s;this.options=c({},l,r);this._timer=null;this._timerout=null;this.state=h.states.UNSTARTED;this.stateInfo=null;if(this.options.history){this.historyState=[];}if(this.options.autoStart){this.start();}},l={interval:1000,onChangeState:false,stopOnError:true,autoStart:false,history:false};h.states={UNSTARTED:"unstarted",WAITING:"waiting",RUNNING:"running",STOPPED:"stopped",CANCELED:"canceled",COMPLETE:"complete",ERROR:"error"};function k(r){n(r,h.states.RUNNING);r._timer=setInterval(function(){try{r.callback(r);}catch(s){n(r,h.states.ERROR);r.stateInfo=s;if(r.options.stopOnError){r.stop(h.states.ERROR);}else{n(r,h.states.RUNNING);}}},r.options.interval);}function n(u,s){if(u.state!=s){var r=u.state,t=u.options[("on"+e(s))];u.state=s;if(u.options.onChangeState){u.options.onChangeState(u,r,s);}if(t){t(u,r);}if(u.options.history){u.historyState.push({date:new Date(),state:r});}}}function j(s){if(this.state!=h.states.RUNNING&&this.state!=h.states.WAITING){var r=this;n(r,h.states.WAITING);r._timerout=setTimeout(function(){k(r);},(s||0));}return this;}function m(r){if(this.state!=h.states.STOPPED&&this.state!=h.states.CANCELED&&this.state!=h.states.COMPLETE&&this.state!=h.states.ERROR){n(this,(r||h.states.STOPPED));if(this._timerout!=null){clearTimeout(this._timerout);this._timerout=null;}if(this._timer!=null){clearInterval(this._timer);this._timer=null;}}return this;}function p(r){if(this.state==h.states.RUNNING||this.state==h.states.WAITING){this.stop();this.start(r);}return this;}function q(){if(this.state==h.states.RUNNING||this.state==h.states.WAITING){this.stop(h.states.CANCELED);}return this;}function i(){if(this.state==h.states.RUNNING||this.state==h.states.WAITING){this.stop(h.states.COMPLETE);}return this;}function o(s){var r=this.state;if(r==h.states.RUNNING||r==h.states.WAITING){this.stop();}this.options.interval=s;if(r==h.states.RUNNING||r==h.states.WAITING){this.start();}return this;}return{constructor:h,start:j,stop:m,sleep:p,cancel:q,complete:i,setTime:o};})()),a=f.Class.create("TimerExec",(function(){var h=function(l,k){this.callback=l;this.time=(k||1000);this.executing=false;this.start();};function j(){if(this.timer){return;}var k=this;k.timer=setInterval(function(){if(!k.executing){try{k.executing=true;k.callback(k);k.executing=false;}catch(l){k.executing=false;throw l;}}},k.time);}function i(){if(!this.timer){return;}clearInterval(this.timer);this.timer=null;}return{constructor:h,start:j,stop:i};})());f.TimerPool=d;f.TimerTask=b;f.TimerExec=a;}(window);
+
+			$(document).ready(function() {
+			
+				// TimerExec
+				var poster1 = $(".poster")
+					, poster2 = poster1.clone()
+					, container = $(".container")
+					, maxPosition1 = (container.width() + 1)
+					, currentPosition1 = 0
+					, poster1Width = poster1.width()
+					, minPosition2 = ((poster1Width - maxPosition1) - (poster1Width * 2) - 30)
+					, minPosition1 = (minPosition2 + poster1Width)
+					, maxPosition2 = (maxPosition1 - poster1Width)
+					, currentPosition2 = minPosition2;
+
+				poster2.appendTo(poster1.parent());
+				$(".callout-poster").width( (-currentPosition2) + poster1Width + 100 );
+				
+				function showPoster(te) {
+					if (currentPosition1 <= maxPosition1) {
+						poster1.animate({
+							left: currentPosition1++
+						}, 5);
+					} else {
+						currentPosition1 = minPosition1;
+					}
+					
+					if (currentPosition2 <= maxPosition2) {
+						poster2.animate({
+							left: currentPosition2++
+						}, 5);
+					} else {
+						currentPosition2 = minPosition2;
+					}
+				}
+				
+				new TimerExec(showPoster, 10);
+				
+				// -----------------------------------------------------------------------------------------------------------------
+				// -----------------------------------------------------------------------------------------------------------------
+				
+				// TimerPool and TimerTask
+				function updateInfoQueue(queue) {
+					$('.info-queue').html(queue.length());
+					$('.info-queue-producer').html(producerElements);
+					$('.info-queue-customer').html(customerElements);
+				}
+				
+				function updateInfoProducers(producerPool) {
+					$('.info-producer').html(producerPool.length());
+				}
+				
+				function updateInfoCustomers(customerPool) {
+					$('.info-customer').html(customerPool.length());
+				}
+				
+				var ExampleQueue = Class.create("ExampleQueue", {
+					constructor: function ExampleQueue(selector) {
+						this._container = $(selector);
+					},
+					
+					_coreSplice: Array.prototype.splice,
+					
+					push: function(child, callback) {
+						this._container.append(child);
+						child.addClass('in-queue');
+						if (callback) {
+							callback.call(this, child);
+						}
+					},
+					
+					pop: function(remove, callback) {
+						if (this.length() > 0) {
+							var child = this._container.find('.in-queue:first');
+							child.removeClass('in-queue');
+							if (remove) {
+								child.remove();
+							}
+							if (callback) {
+								callback.call(this, child);
+							}
+						}
+					},
+					
+					length: function() {
+						return this._container.prop('childNodes').length;
+					},
+					
+					clean: function() {
+						var i, l;
+						for (i = 0; i < this.length();) {
+							this.pop(false, function(child) {
+								this.remove();
+							});
+						}
+					}
+				})
+				
+				, producerPool = new TimerPool()
+				, customerPool = new TimerPool()
+				
+				, queue = new ExampleQueue('.nodes-container')
+				, queueProducer = new ExampleQueue('.list-producers')
+				, queueCustomer = new ExampleQueue('.list-customers')
+				
+				, producerCount = 1
+				, customerCount = 1
+				
+				, producerElements = 0
+				, customerElements = 0
+					
+				, fnProducer = function() {
+					var node = $(this.options.templateNode);
+					node.html(this.timer_id.replace('TimerTask-', ''));
+					queue.push(node, function(child) {
+						child.fadeIn(750);
+					});
+					this.producerElements++;
+					this.producer.find('.pro-info small').html(this.producerElements);
+					producerElements++;
+					updateInfoQueue(queue);
+				}
+					
+				, optionsProducer = {
+					stopOnError: true,
+					interval: 500,
+					templateNode: '<button class="btn btn-danger btn-lg" style="display: none;">&#160;</button>',
+					templateProducer: [
+						'<div class="callout callout-collapse callout-info" style="display: none;">',
+						'<small>&#160;</small>',
+						'<div class="btn-group btn-group-xs">',
+						'  <button class="btn btn-default btn-pro-start btn-xs" >Start</button>',
+						'  <button class="btn btn-default btn-pro-stop btn-xs" >Stop</button>',
+						'  <button class="btn btn-default btn-pro-sleep btn-xs" >Sleep</button>',
+						'  <button class="btn btn-default btn-pro-time btn-xs" >Time</button>',
+						'  <button class="btn btn-default btn-pro-remove btn-xs">&times;</button>',
+						'</div>',
+						'<div class="pro-info hide">',
+						'  Elementos producidos <small>0</small>',
+						'</div>',
+						'</div>'].join('')
+				}
+					
+				, fnCustomer = function() {
+					if(queue.length() == 0) {
+						return this.sleep(1500);
+					}
+					queue.pop(false, function(child) {
+						child.fadeOut(750, function() {
+							$(this).remove();
+						});
+					});
+					this.customerElements++;
+					this.customer.find('.cus-info small').html(this.customerElements);
+					customerElements++;
+					updateInfoQueue(queue);
+				}
+					
+				, optionsCustomer = {
+					stopOnError: true,
+					interval: 1000,
+					templateCustomer: [
+						'<div class="callout callout-collapse callout-info" style="display: none;">',
+						'<small>&#160;</small>',
+						'<div class="btn-group btn-group-xs">',
+						'  <button class="btn btn-default btn-cus-start btn-xs" >Start</button>',
+						'  <button class="btn btn-default btn-cus-stop btn-xs" >Stop</button>',
+						'  <button class="btn btn-default btn-cus-sleep btn-xs" >Sleep</button>',
+						'  <button class="btn btn-default btn-cus-time btn-xs" >Time</button>',
+						'  <button class="btn btn-default btn-cus-remove btn-xs">&times;</button>',
+						'</div>',
+						'<div class="cus-info hide">',
+						'  Elementos consumidos <small>0</small>',
+						'</div>',
+						'</div>'].join('')
+				};
+				
+				function getSleepTime(dephault) {
+					var time = prompt("Ingrese el tiempo de espera en milisegundos. (1 Segundo = 1000 Milisegundos)", dephault);
+					if (time && !/^[0-9]+$/.test(time)) {
+						alert('Por favor ingrese un tiempo numérico (Milisegundos)');
+						return getSleepTime(dephault);
+					}
+					return time;
+				}
+				
+				$('.btn-start').on('click', function(e) {
+					e.stopPropagation();
+					producerPool.start();
+					customerPool.start();
+				});
+				
+				$('.btn-stop').on('click', function(e) {
+					e.stopPropagation();
+					producerPool.stop();
+					customerPool.stop();
+				});
+				
+				$('.btn-cancel').on('click', function(e) {
+					e.stopPropagation();
+					producerPool.cancel();
+					customerPool.cancel();
+				});
+				
+				$('.btn-complete').on('click', function(e) {
+					e.stopPropagation();
+					producerPool.complete();
+					customerPool.complete();
+				});
+				
+				$('.btn-sleep').on('click', function(e) {
+					e.stopPropagation();
+					var time = getSleepTime(3000);
+					if (time) {
+						producerPool.sleep(time);
+						customerPool.sleep(time);
+					}
+				});
+				
+				$('.btn-reinit').on('click', function(e) {
+					e.stopPropagation();
+					producerPool.clean();
+					customerPool.clean();
+					producerCount = 1;
+					$('#pro_code').val(producerCount);
+					customerCount = 1;
+					$('#cus_code').val(customerCount);
+					producerElements = 0;
+					customerElements = 0;
+					$('.list-producers, .list-customers, .nodes-container').empty();
+					updateInfoQueue(queue);
+					updateInfoProducers(producerPool);
+					updateInfoCustomers(customerPool);
+					producerPool.start();
+					customerPool.start();
+				});
+				
+				$('.btn-add-producer').on('click', function(e) {
+					e.stopPropagation();
+					var producer = $(optionsProducer.templateProducer)
+						, code = $('#pro_code')
+						, codeVal = $('#pro_code').val()
+						, time = $('#pro_time').val()
+						, timer;
+					
+					if (!/^[0-9]+$/.test(time)) {
+						alert('Por favor ingrese un tiempo numérico (Milisegundos)');
+						return false;
+					}
+					
+					producer.find('small').html( codeVal || producerCount );
+					optionsProducer.interval = parseInt(time);
+					timer = producerPool.add(fnProducer, optionsProducer);
+					timer.timer_id = ['TimerTask-', codeVal].join('');
+					timer.producer = producer;
+					timer.producerElements = 0;
+					queueProducer.push(producer, function(child) {
+						child.fadeIn(750);
+					});
+					updateInfoProducers(producerPool);
+					producerCount++;
+					code.val(producerCount);
+					producer.data("timer", timer);
+					
+					producer.find('.btn-pro-start').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer");
+						timer.start();
+					});
+					producer.find('.btn-pro-stop').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer");
+						timer.stop();
+					});
+					producer.find('.btn-pro-sleep').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, time = getSleepTime(1000);
+						if (time) {
+							timer.sleep(time);
+						}
+					});
+					producer.find('.btn-pro-time').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, time = getSleepTime(timer.options.interval);
+						if (time) {
+							timer.setTime(time);
+						}
+					});
+					producer.find('.btn-pro-remove').data("timer", timer).data("producer", producer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, producer = $this.data("producer");
+						if (producerPool.length() > 0) {
+							producerPool.remove(timer.timer_id);
+							updateInfoProducers(producerPool);
+							producer.remove();
+						}
+					});
+					
+				}).trigger('click');
+				
+				$('.btn-info-producer').on('click', function(e) {
+					$('.pro-info').toggleClass('hide');
+				});
+				
+				$('.btn-add-customer').on('click', function(e) {
+					e.stopPropagation();
+					var customer = $(optionsCustomer.templateCustomer)
+						, code = $('#cus_code')
+						, codeVal = $('#cus_code').val()
+						, time = $('#cus_time').val()
+						, timer;
+					
+					if (!/^[0-9]+$/.test(time)) {
+						alert('Por favor ingrese un tiempo numérico (Milisegundos)');
+						return false;
+					}
+					
+					customer.find('small').html( codeVal || customerCount );
+					optionsCustomer.interval = parseInt(time);
+					timer = customerPool.add(fnCustomer, optionsCustomer);
+					timer.timer_id = ['TimerTask-', codeVal].join('');
+					timer.customer = customer;
+					timer.customerElements = 0;
+					queueCustomer.push(customer, function(child) {
+						child.fadeIn(750);
+					});
+					updateInfoCustomers(customerPool);
+					customerCount++;
+					code.val(customerCount);
+					
+					customer.find('.btn-cus-start').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer");
+						timer.start();
+					});
+					customer.find('.btn-cus-stop').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer");
+						timer.stop();
+					});
+					customer.find('.btn-cus-sleep').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, time = getSleepTime(1000);
+						if (time) {
+							timer.sleep(time);
+						}
+					});
+					customer.find('.btn-cus-time').data("timer", timer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, time = getSleepTime(timer.options.interval);
+						if (time) {
+							timer.setTime(time);
+						}
+					});
+					customer.find('.btn-cus-remove').data("timer", timer).data("customer", customer).on('click', function(e) {
+						var $this = $(this)
+							, timer = $this.data("timer")
+							, customer = $this.data("customer");
+						if (customerPool.length() > 0) {
+							customerPool.remove(timer.timer_id);
+							updateInfoCustomers(customerPool);
+							customer.remove();
+						}
+					});
+					
+				}).trigger('click');
+				
+				$('.btn-info-customer').on('click', function(e) {
+					$('.cus-info').toggleClass('hide');
+				});
+				
+			});
+		</script>
+		
+		<style>
+			body {margin: 0; padding: 0;}
+			.container {margin-right: auto; margin-left: auto; overflow: hidden;}
+			.row {margin: 15px 0 0 0;}
+			.panel-body {padding: 10px;}
+			.callout-poster {margin: 0 -15px; padding: 20px 0; background-color: #f4f8fa;}
+			.poster {position: relative; display: inline-block;}
+			.callout {margin: 20px 0; padding: 20px; border-left: 3px solid #eee;}
+			.callout-collapse {margin: 5px 0; padding: 5px;}
+			.callout small {margin: 0 5px 5px 0;}
+			.callout div:last-child {margin-bottom: 0;}
+			.callout-danger {background-color: #fdf7f7; border-color: #eed3d7;}
+			.callout-danger h4 {color: #b94a48;}
+			.callout-warning {background-color: #faf8f0; border-color: #faebcc;}
+			.callout-warning h4 {color: #c09853;}
+			.callout-info {background-color: #f4f8fa; border-color: #bce8f1;}
+			.callout-info h4 {color: #3a87ad;}
+			.nodes-container {margin-top: 20px;}
+			.nodes-container .btn {margin-bottom: 5px;}
+		</style>
+		
+	</head>
+	<body>
+
+		<div class="container">
+			
+			<div class="page-header">
+				<h1>TimerExec</h1>
+			</div>
+				
+			<div class="callout-poster">
+				<div class="poster">
+					<h4>Este cartel se desliza mediante una actualización realizada periódicamente por TimerExec cada 10 milésimas de segundo.</h4>
+				</div>
+			</div>
+		</div>
+		
+		<div class="container">
+			<div class="row">
+			
+				<div class="col-sm-12" style="padding: 0;">
+					<div class="page-header">
+						<h1>TimerPool y TimerTask</h1>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">
+							<h4>
+								Elementos en la cola
+								[&#160;<small class="info-queue">0</small>&#160;]
+							</h4>
+							<h4>
+								Elementos producidos para la cola
+								[&#160;<small class="info-queue-producer">0</small>&#160;]
+							</h4>
+							<h4>
+								Elementos consumidos de la cola
+								[&#160;<small class="info-queue-customer">0</small>&#160;]
+							</h4>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="btn-toolbar text-center">
+								<button type="button" class="btn btn-default btn-start">Iniciar</button>
+								<button type="button" class="btn btn-default btn-stop">Parar</button>
+								<button type="button" class="btn btn-default btn-cancel">Cancelar</button>
+								<button type="button" class="btn btn-default btn-complete">Completar</button>
+								<button type="button" class="btn btn-default btn-sleep">Dormir</button>
+								<button type="button" class="btn btn-default btn-reinit">Reiniciar</button>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="col-sm-12 config-customer">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										Consumidor
+									</div>
+									<div class="panel-body">
+										<form role="form">
+											<div class="form-group">
+												<label for="cus_code">Código</label>
+												<input type="text" class="form-control" id="cus_code" placeholder="Código" value="1" maxlength="3">
+											</div>
+											<div class="form-group">
+												<label for="cus_time">Tiempo de consumo (ms)</label>
+												<input type="text" class="form-control" id="cus_time" placeholder="Tiempo (ms)" value="1000">
+											</div>
+											<div class="form-group text-center">
+												<button type="button" class="btn btn-success btn-add-customer">Agregar</button>
+											</div>
+										</form>
+									</div>
+								</div>
+								
+								<div class="panel panel-success">
+									<div class="panel-heading">
+										Consumidores (<small class="info-customer"></small>) <a href="#" class="btn btn-link btn-info-customer">+ Info</a>
+									</div>
+									<div class="panel-body list-customers">
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-sm-6">
+							<div class="btn-toolbar col-sm-12 nodes-container">
+							</div>
+						</div>
+						
+						<div class="col-sm-3">
+							<div class="col-sm-12 config-producer">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										Productor 
+									</div>
+									<div class="panel-body">
+										<form role="form">
+											<div class="form-group">
+												<label for="pro_code">Código</label>
+												<input type="text" class="form-control" id="pro_code" placeholder="Código" value="1" maxlength="3">
+											</div>
+											<div class="form-group">
+												<label for="pro_time">Tiempo de producción (ms)</label>
+												<input type="text" class="form-control" id="pro_time" placeholder="Tiempo (ms)" value="500">
+											</div>
+											<div class="form-group text-center">
+												<button type="button" class="btn btn-success btn-add-producer">Agregar</button>
+											</div>
+										</form>
+									</div>
+								</div>
+								
+								<div class="panel panel-success">
+									<div class="panel-heading">
+										Productores (<small class="info-producer"></small>) <a href="#" class="btn btn-link btn-info-producer">+ Info</a>
+									</div>
+									<div class="panel-body list-producers">
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+
+	</body>
+</html>
